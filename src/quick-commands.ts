@@ -15,12 +15,20 @@ type PermissionSystemConfigFile = {
 };
 
 type QuickPermissionCommandController = {
-	getConfigPath(): string;
+	getGlobalConfigPath(): string;
+	getProjectConfigPath(cwd: string): string;
 };
 
 type ParsedRuleCommand = {
 	tool: string;
 	pattern: string;
+};
+
+type PolicyScope = "project" | "global";
+
+type ScopedArgs = {
+	scope: PolicyScope;
+	args: string;
 };
 
 const explicitSurfaces = new Set([
@@ -69,13 +77,25 @@ export function registerQuickPermissionCommands(
 	pi.registerCommand("policy", {
 		description:
 			"Show the active permission policy file managed by pi-permission-system",
-		handler: async (_args, ctx) => {
-			const configPath = controller.getConfigPath();
-			const config = await loadConfig(configPath);
-			ctx.ui.notify(
-				`Policy file: ${configPath}\n\n${summarizePolicy(config)}`,
-				"info",
-			);
+		handler: async (args, ctx) => {
+			try {
+				const scoped = parseScope(args);
+				const configPath = resolveConfigPath(scoped.scope, ctx, controller);
+				const config = await loadConfig(configPath);
+				const fallback =
+					scoped.scope === "project"
+						? `\nGlobal fallback: ${controller.getGlobalConfigPath()}`
+						: "";
+				ctx.ui.notify(
+					`Scope: ${scoped.scope}\nPolicy file: ${configPath}${fallback}\n\n${summarizePolicy(config)}`,
+					"info",
+				);
+			} catch (error) {
+				ctx.ui.notify(
+					error instanceof Error ? error.message : String(error),
+					"error",
+				);
+			}
 		},
 	});
 
@@ -98,14 +118,15 @@ function registerRuleCommand(
 		description,
 		handler: async (args, ctx) => {
 			try {
-				const { tool, pattern } = parseRuleCommand(args);
-				const configPath = controller.getConfigPath();
+				const scoped = parseScope(args);
+				const { tool, pattern } = parseRuleCommand(scoped.args);
+				const configPath = resolveConfigPath(scoped.scope, ctx, controller);
 				const currentConfig = await loadConfig(configPath);
 				const nextConfig = applyRule(currentConfig, tool, pattern, action);
 
 				await saveConfig(configPath, nextConfig);
 				ctx.ui.notify(
-					`${name}: ${tool} ${pattern}\nSaved to ${configPath}\nReloading...`,
+					`${name}: ${tool} ${pattern}\nScope: ${scoped.scope}\nSaved to ${configPath}\nReloading...`,
 					"info",
 				);
 				await ctx.reload();
@@ -117,6 +138,35 @@ function registerRuleCommand(
 			}
 		},
 	});
+}
+
+function parseScope(args: string): ScopedArgs {
+	const trimmed = args.trim();
+	if (trimmed === "--global") {
+		return { scope: "global", args: "" };
+	}
+	if (trimmed.startsWith("--global ")) {
+		return { scope: "global", args: trimmed.slice("--global".length).trim() };
+	}
+	return { scope: "project", args: trimmed };
+}
+
+function resolveConfigPath(
+	scope: PolicyScope,
+	ctx: ExtensionCommandContext,
+	controller: QuickPermissionCommandController,
+): string {
+	if (scope === "global") {
+		return controller.getGlobalConfigPath();
+	}
+
+	if (!ctx.cwd) {
+		throw new Error(
+			"Project policy requires a working directory. Use --global to write global policy.",
+		);
+	}
+
+	return controller.getProjectConfigPath(ctx.cwd);
 }
 
 function parseRuleCommand(args: string): ParsedRuleCommand {

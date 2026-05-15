@@ -1,6 +1,6 @@
 import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
 import { registerPermissionSystemCommand } from "./config-modal";
-import { getGlobalConfigPath } from "./config-paths";
+import { getGlobalConfigPath, getProjectConfigPath } from "./config-paths";
 import type { PermissionForwardingDeps } from "./forwarded-permissions/polling";
 import { ForwardingManager } from "./forwarding-manager";
 import {
@@ -81,13 +81,14 @@ export default function piPermissionSystemExtension(pi: ExtensionAPI): void {
   );
 
   const configPathController = {
-    getConfigPath: () => getGlobalConfigPath(runtime.agentDir),
+    getGlobalConfigPath: () => getGlobalConfigPath(runtime.agentDir),
+    getProjectConfigPath,
   };
 
   registerPermissionSystemCommand(pi, {
     getConfig: () => runtime.config,
     setConfig: (next, ctx) => saveExtensionConfig(runtime, next, ctx),
-    getConfigPath: configPathController.getConfigPath,
+    getConfigPath: configPathController.getGlobalConfigPath,
     getComposedRules: () =>
       runtime.permissionManager.getComposedConfigRules(
         runtime.lastKnownActiveAgentName ?? undefined,
