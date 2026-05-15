@@ -33,11 +33,11 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/gotgenes/pi-permission-system.git"
+    "url": "git+https://github.com/cmptr/pi-quick-perms.git"
   },
-  "homepage": "https://github.com/gotgenes/pi-permission-system#readme",
+  "homepage": "https://github.com/cmptr/pi-quick-perms#readme",
   "bugs": {
-    "url": "https://github.com/gotgenes/pi-permission-system/issues"
+    "url": "https://github.com/cmptr/pi-quick-perms/issues"
   },
   "engines": {
     "node": ">=20"
