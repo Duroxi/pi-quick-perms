@@ -76,7 +76,7 @@ export function registerQuickPermissionCommands(
 
 	pi.registerCommand("policy", {
 		description:
-			"Show the active permission policy file managed by pi-permission-system",
+			"Show the active permission policy file managed by pi-quick-perms",
 		handler: async (args, ctx) => {
 			try {
 				const scoped = parseScope(args);

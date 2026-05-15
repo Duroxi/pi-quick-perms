@@ -29,7 +29,7 @@ describe("discoverGlobalNodeModulesRoot", () => {
 
   test("returns the node_modules dir when the file is inside one", () => {
     const url =
-      "file:///opt/homebrew/lib/node_modules/pi-permission-system/dist/external-directory.js";
+      "file:///opt/homebrew/lib/node_modules/pi-quick-perms/dist/external-directory.js";
     expect(discoverGlobalNodeModulesRoot(url)).toBe(
       "/opt/homebrew/lib/node_modules",
     );
@@ -37,7 +37,7 @@ describe("discoverGlobalNodeModulesRoot", () => {
 
   test("returns node_modules for a deeply nested file", () => {
     const url =
-      "file:///home/user/.nvm/versions/node/v20/lib/node_modules/pi-permission-system/src/external-directory.js";
+      "file:///home/user/.nvm/versions/node/v20/lib/node_modules/pi-quick-perms/src/external-directory.js";
     expect(discoverGlobalNodeModulesRoot(url)).toBe(
       "/home/user/.nvm/versions/node/v20/lib/node_modules",
     );
@@ -45,7 +45,7 @@ describe("discoverGlobalNodeModulesRoot", () => {
 
   test("returns node_modules for a bun global install path", () => {
     const url =
-      "file:///home/user/.bun/install/global/node_modules/pi-permission-system/dist/external-directory.js";
+      "file:///home/user/.bun/install/global/node_modules/pi-quick-perms/dist/external-directory.js";
     expect(discoverGlobalNodeModulesRoot(url)).toBe(
       "/home/user/.bun/install/global/node_modules",
     );
@@ -55,9 +55,9 @@ describe("discoverGlobalNodeModulesRoot", () => {
     // The walk-up algorithm stops at the first node_modules dir it encounters,
     // which is the innermost one when the file is inside a nested install.
     // In practice this never happens for a real global install — the extension
-    // is always directly at <global_root>/node_modules/pi-permission-system/…
+    // is always directly at <global_root>/node_modules/pi-quick-perms/…
     const url =
-      "file:///opt/lib/node_modules/some-pkg/node_modules/pi-permission-system/dist/index.js";
+      "file:///opt/lib/node_modules/some-pkg/node_modules/pi-quick-perms/dist/index.js";
     expect(discoverGlobalNodeModulesRoot(url)).toBe(
       "/opt/lib/node_modules/some-pkg/node_modules",
     );
@@ -65,7 +65,7 @@ describe("discoverGlobalNodeModulesRoot", () => {
 
   test("returns null when the file is not inside any node_modules directory", () => {
     const url =
-      "file:///home/user/development/pi-permission-system/dist/external-directory.js";
+      "file:///home/user/development/pi-quick-perms/dist/external-directory.js";
     expect(discoverGlobalNodeModulesRoot(url)).toBeNull();
   });
 
@@ -86,13 +86,13 @@ describe("discoverGlobalNodeModulesRoot", () => {
     expect(result === null || result.endsWith("node_modules")).toBe(true);
   });
 
-  test("the discovered path includes the pi-permission-system package directory", () => {
+  test("the discovered path includes the pi-quick-perms package directory", () => {
     const url =
-      "file:///opt/homebrew/lib/node_modules/pi-permission-system/dist/external-directory.js";
+      "file:///opt/homebrew/lib/node_modules/pi-quick-perms/dist/external-directory.js";
     const root = discoverGlobalNodeModulesRoot(url);
     expect(root).not.toBeNull();
-    expect(join(root!, "pi-permission-system")).toBe(
-      "/opt/homebrew/lib/node_modules/pi-permission-system",
+    expect(join(root!, "pi-quick-perms")).toBe(
+      "/opt/homebrew/lib/node_modules/pi-quick-perms",
     );
   });
 });
@@ -113,7 +113,7 @@ describe("isPiInfrastructureRead", () => {
     expect(
       isPiInfrastructureRead(
         "read",
-        "/home/user/.pi/agent/extensions/pi-permission-system/config.json",
+        "/home/user/.pi/agent/extensions/pi-quick-perms/config.json",
         INFRA_DIRS,
         CWD,
       ),
@@ -146,7 +146,7 @@ describe("isPiInfrastructureRead", () => {
     expect(
       isPiInfrastructureRead(
         "ls",
-        "/opt/homebrew/lib/node_modules/pi-permission-system",
+        "/opt/homebrew/lib/node_modules/pi-quick-perms",
         INFRA_DIRS,
         CWD,
       ),
@@ -159,7 +159,7 @@ describe("isPiInfrastructureRead", () => {
     expect(
       isPiInfrastructureRead(
         "write",
-        "/home/user/.pi/agent/extensions/pi-permission-system/config.json",
+        "/home/user/.pi/agent/extensions/pi-quick-perms/config.json",
         INFRA_DIRS,
         CWD,
       ),

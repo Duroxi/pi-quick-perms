@@ -1,7 +1,7 @@
 {
-  "name": "@gotgenes/pi-permission-system",
-  "version": "5.18.1",
-  "description": "Permission enforcement extension for the Pi coding agent.",
+  "name": "pi-quick-perms",
+  "version": "1.0.0",
+  "description": "Permission enforcement and quick policy commands for the Pi coding agent.",
   "type": "module",
   "exports": {
     ".": "./src/service.ts"

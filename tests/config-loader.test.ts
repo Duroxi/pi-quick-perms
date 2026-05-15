@@ -290,7 +290,7 @@ describe("loadAndMergeConfigs", () => {
   });
 
   function writeGlobal(content: Record<string, unknown>): void {
-    const dir = join(agentDir, "extensions", "pi-permission-system");
+    const dir = join(agentDir, "extensions", "pi-quick-perms");
     mkdirSync(dir, { recursive: true });
     writeFileSync(join(dir, "config.json"), JSON.stringify(content));
   }
@@ -348,7 +348,7 @@ describe("loadAndMergeConfigs", () => {
     const result = loadAndMergeConfigs(agentDir, cwd, extensionRoot);
     expect(result.issues).toHaveLength(1);
     expect(result.issues[0]).toContain("pi-permissions.jsonc");
-    expect(result.issues[0]).toContain("extensions/pi-permission-system");
+    expect(result.issues[0]).toContain("extensions/pi-quick-perms");
     // Legacy file has no flat-format permission key — no rules extracted
     expect(result.merged.permission).toBeUndefined();
   });
@@ -380,7 +380,7 @@ describe("loadAndMergeConfigs", () => {
   });
 
   it("does not emit legacy extension config issue when path equals new global path", () => {
-    const newGlobalDir = join(agentDir, "extensions", "pi-permission-system");
+    const newGlobalDir = join(agentDir, "extensions", "pi-quick-perms");
     mkdirSync(newGlobalDir, { recursive: true });
     writeFileSync(
       join(newGlobalDir, "config.json"),

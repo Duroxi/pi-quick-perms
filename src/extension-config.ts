@@ -4,7 +4,7 @@ import { fileURLToPath } from "node:url";
 
 import { toRecord } from "./common";
 
-export const EXTENSION_ID = "pi-permission-system";
+export const EXTENSION_ID = "pi-quick-perms";
 
 export interface PermissionSystemExtensionConfig {
   debugLog: boolean;
@@ -71,6 +71,6 @@ export function ensurePermissionSystemLogsDirectory(
     return undefined;
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
-    return `Failed to create permission-system log directory '${logsDir}': ${message}`;
+    return `Failed to create pi-quick-perms log directory '${logsDir}': ${message}`;
   }
 }

@@ -184,7 +184,7 @@ test("permission-system command handlers manage config summary, persistence, and
     assert.ok(definition !== null);
     assert.ok(
       (definition?.description ?? "").includes(
-        "Configure pi-permission-system",
+        "Configure pi-quick-perms",
       ),
     );
 
@@ -200,7 +200,7 @@ test("permission-system command handlers manage config summary, persistence, and
     await definition?.handler("path", infoCtx.ctx);
     assert.equal(
       lastNotification(infoCtx.notifications).message,
-      `permission-system config: ${configPath}`,
+      `pi-quick-perms config: ${configPath}`,
     );
 
     await definition?.handler("help", infoCtx.ctx);
@@ -214,7 +214,7 @@ test("permission-system command handlers manage config summary, persistence, and
     assert.deepEqual(config, DEFAULT_EXTENSION_CONFIG);
     assert.equal(
       lastNotification(infoCtx.notifications).message,
-      "Permission system settings reset to defaults.",
+      "Pi quick perms settings reset to defaults.",
     );
 
     const persisted = JSON.parse(readFileSync(configPath, "utf8")) as Record<

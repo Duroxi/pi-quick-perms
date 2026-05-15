@@ -3,7 +3,7 @@
  *
  * `Symbol.for()` is process-global by spec, so it survives jiti's per-extension
  * module isolation (`moduleCache: false`). A consumer doing
- * `import("@gotgenes/pi-permission-system")` gets a fresh module copy, but
+ * `import("pi-quick-perms")` gets a fresh module copy, but
  * `getPermissionsService()` reads from the same `globalThis` slot the provider
  * wrote to — enabling direct, synchronous, type-safe function calls.
  *
@@ -16,7 +16,7 @@ import type { PermissionCheckResult, PermissionState } from "./types";
 export type { PermissionCheckResult, PermissionState };
 
 /** Process-global key for the service slot. */
-const SERVICE_KEY = Symbol.for("@gotgenes/pi-permission-system:service");
+const SERVICE_KEY = Symbol.for("pi-quick-perms:service");
 
 /**
  * Public interface exposed to other extensions via `getPermissionsService()`.

@@ -1,12 +1,13 @@
 import { join } from "node:path";
 
-const EXTENSION_ID = "pi-permission-system";
+const GLOBAL_EXTENSION_ID = "pi-quick-perms";
+const PROJECT_POLICY_EXTENSION_ID = "pi-permission-system";
 
-export const DEBUG_LOG_FILENAME = `${EXTENSION_ID}-debug.jsonl`;
-export const REVIEW_LOG_FILENAME = `${EXTENSION_ID}-permission-review.jsonl`;
+export const DEBUG_LOG_FILENAME = `${GLOBAL_EXTENSION_ID}-debug.jsonl`;
+export const REVIEW_LOG_FILENAME = `${GLOBAL_EXTENSION_ID}-permission-review.jsonl`;
 
 export function getGlobalConfigDir(agentDir: string): string {
-  return join(agentDir, "extensions", EXTENSION_ID);
+  return join(agentDir, "extensions", GLOBAL_EXTENSION_ID);
 }
 
 export function getGlobalConfigPath(agentDir: string): string {
@@ -18,7 +19,7 @@ export function getGlobalLogsDir(agentDir: string): string {
 }
 
 export function getProjectConfigPath(cwd: string): string {
-  return join(cwd, ".pi", "extensions", EXTENSION_ID, "config.json");
+  return join(cwd, ".pi", "extensions", PROJECT_POLICY_EXTENSION_ID, "config.json");
 }
 
 export function getLegacyGlobalPolicyPath(agentDir: string): string {

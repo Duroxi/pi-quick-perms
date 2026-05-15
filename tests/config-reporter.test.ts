@@ -17,7 +17,7 @@ import { PermissionManager } from "../src/permission-manager";
 test("buildResolvedConfigLogEntry includes policy paths and legacy detection flags", () => {
   const policyPaths: ResolvedPolicyPaths = {
     globalConfigPath:
-      "/home/user/.pi/agent/extensions/pi-permission-system/config.json",
+      "/home/user/.pi/agent/extensions/pi-quick-perms/config.json",
     globalConfigExists: true,
     projectConfigPath:
       "/projects/my-app/.pi/extensions/pi-permission-system/config.json",
@@ -32,7 +32,7 @@ test("buildResolvedConfigLogEntry includes policy paths and legacy detection fla
 
   assert.equal(
     result.globalConfigPath,
-    "/home/user/.pi/agent/extensions/pi-permission-system/config.json",
+    "/home/user/.pi/agent/extensions/pi-quick-perms/config.json",
   );
   assert.equal(result.globalConfigExists, true);
   assert.equal(
@@ -52,7 +52,7 @@ test("buildResolvedConfigLogEntry includes policy paths and legacy detection fla
 test("buildResolvedConfigLogEntry handles null project paths", () => {
   const policyPaths: ResolvedPolicyPaths = {
     globalConfigPath:
-      "/home/user/.pi/agent/extensions/pi-permission-system/config.json",
+      "/home/user/.pi/agent/extensions/pi-quick-perms/config.json",
     globalConfigExists: false,
     projectConfigPath: null,
     projectConfigExists: false,
@@ -73,7 +73,7 @@ test("buildResolvedConfigLogEntry handles null project paths", () => {
 test("buildResolvedConfigLogEntry surfaces legacy detection flags", () => {
   const policyPaths: ResolvedPolicyPaths = {
     globalConfigPath:
-      "/home/user/.pi/agent/extensions/pi-permission-system/config.json",
+      "/home/user/.pi/agent/extensions/pi-quick-perms/config.json",
     globalConfigExists: true,
     projectConfigPath: null,
     projectConfigExists: false,

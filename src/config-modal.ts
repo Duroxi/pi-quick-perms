@@ -27,12 +27,12 @@ const COMMAND_ARGUMENTS = [
   {
     value: "show",
     label: "Show active settings",
-    description: "Display the current permission-system config summary",
+    description: "Display the current pi-quick-perms config summary",
   },
   {
     value: "path",
     label: "Show config path",
-    description: "Display the config.json path used by pi-permission-system",
+    description: "Display the config.json path used by pi-quick-perms",
   },
   {
     value: "reset",
@@ -110,7 +110,7 @@ function buildSettingItems(
       id: "debugLog",
       label: "Debug logging",
       description:
-        "Write verbose permission-system diagnostics to the extension logs directory",
+        "Write verbose pi-quick-perms diagnostics to the extension logs directory",
       currentValue: toOnOff(config.debugLog),
       values: ON_OFF,
     },
@@ -206,7 +206,7 @@ function handleArgs(
   if (normalized === "show") {
     const rules = controller.getComposedRules?.();
     ctx.ui.notify(
-      `permission-system: ${summarizeConfig(controller.getConfig(), rules)}`,
+      `pi-quick-perms: ${summarizeConfig(controller.getConfig(), rules)}`,
       "info",
     );
     return true;
@@ -214,7 +214,7 @@ function handleArgs(
 
   if (normalized === "path") {
     ctx.ui.notify(
-      `permission-system config: ${controller.getConfigPath()}`,
+      `pi-quick-perms config: ${controller.getConfigPath()}`,
       "info",
     );
     return true;
@@ -222,7 +222,7 @@ function handleArgs(
 
   if (normalized === "reset") {
     controller.setConfig(cloneDefaultConfig(), ctx);
-    ctx.ui.notify("Permission system settings reset to defaults.", "info");
+    ctx.ui.notify("Pi quick perms settings reset to defaults.", "info");
     return true;
   }
 
@@ -241,7 +241,7 @@ export function registerPermissionSystemCommand(
 ): void {
   pi.registerCommand("permission-system", {
     description:
-      "Configure pi-permission-system logging and yolo-mode behavior",
+      "Configure pi-quick-perms logging and yolo-mode behavior",
     getArgumentCompletions,
     handler: async (args, ctx) => {
       if (handleArgs(args, ctx, controller)) {

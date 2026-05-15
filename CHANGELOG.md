@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 1.0.0 (2026-05-15)
+
+### Changed
+
+- Start the `pi-quick-perms` package version at `1.0.0` under its own package identity.
+- Keep `@gotgenes/pi-permission-system@5.18.1` as the recorded fork base instead of reusing upstream's version line.
+- Rename local package metadata, global config path, logs, service symbol, docs, and tests for the `pi-quick-perms` fork.
+
 ## [5.18.1](https://github.com/gotgenes/pi-permission-system/compare/v5.18.0...v5.18.1) (2026-05-15)
 
 

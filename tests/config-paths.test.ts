@@ -16,24 +16,24 @@ import {
 describe("config-paths", () => {
   const agentDir = "/home/user/.pi/agent";
   const cwd = "/projects/my-app";
-  const extensionRoot = "/opt/extensions/pi-permission-system";
+  const extensionRoot = "/opt/extensions/pi-quick-perms";
 
   describe("new layout paths", () => {
-    it("getGlobalConfigDir returns extensions/pi-permission-system under agentDir", () => {
+    it("getGlobalConfigDir returns extensions/pi-quick-perms under agentDir", () => {
       expect(getGlobalConfigDir(agentDir)).toBe(
-        join(agentDir, "extensions", "pi-permission-system"),
+        join(agentDir, "extensions", "pi-quick-perms"),
       );
     });
 
     it("getGlobalConfigPath returns config.json under the global config dir", () => {
       expect(getGlobalConfigPath(agentDir)).toBe(
-        join(agentDir, "extensions", "pi-permission-system", "config.json"),
+        join(agentDir, "extensions", "pi-quick-perms", "config.json"),
       );
     });
 
     it("getGlobalLogsDir returns logs under the global config dir", () => {
       expect(getGlobalLogsDir(agentDir)).toBe(
-        join(agentDir, "extensions", "pi-permission-system", "logs"),
+        join(agentDir, "extensions", "pi-quick-perms", "logs"),
       );
     });
 
@@ -66,12 +66,12 @@ describe("config-paths", () => {
 
   describe("log filenames", () => {
     it("DEBUG_LOG_FILENAME is a .jsonl file", () => {
-      expect(DEBUG_LOG_FILENAME).toBe("pi-permission-system-debug.jsonl");
+      expect(DEBUG_LOG_FILENAME).toBe("pi-quick-perms-debug.jsonl");
     });
 
     it("REVIEW_LOG_FILENAME is a .jsonl file", () => {
       expect(REVIEW_LOG_FILENAME).toBe(
-        "pi-permission-system-permission-review.jsonl",
+        "pi-quick-perms-permission-review.jsonl",
       );
     });
   });
