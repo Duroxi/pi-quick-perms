@@ -1,6 +1,6 @@
 {
   "name": "pi-quick-perms",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Permission enforcement and quick policy commands for the Pi coding agent.",
   "type": "module",
   "exports": {
