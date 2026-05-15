@@ -62,22 +62,22 @@ export function suggestMcpPattern(target: string): string {
 function buildLabel(pattern: string, surface: string): string {
   switch (surface) {
     case "bash":
-      return `Yes, allow bash "${pattern}" for this session`;
+      return `Allow bash "${pattern}" for this session`;
     case "mcp":
-      return `Yes, allow mcp tool "${pattern}" for this session`;
+      return `Allow mcp tool "${pattern}" for this session`;
     case "skill":
-      return `Yes, allow skill "${pattern}" for this session`;
+      return `Allow skill "${pattern}" for this session`;
     case "external_directory":
-      return `Yes, allow access to external directory "${pattern}" for this session`;
+      return `Allow access to external directory "${pattern}" for this session`;
     case "path":
-      return `Yes, allow path "${pattern}" for this session`;
+      return `Allow path "${pattern}" for this session`;
     default:
       // Path-bearing tools with a specific path pattern show the pattern.
       if (PATH_BEARING_TOOLS.has(surface) && pattern !== "*") {
-        return `Yes, allow ${surface} "${pattern}" for this session`;
+        return `Allow ${surface} "${pattern}" for this session`;
       }
       // Tool surfaces with catch-all or extension tools.
-      return `Yes, allow tool "${surface}" for this session`;
+      return `Allow tool "${surface}" for this session`;
   }
 }
 

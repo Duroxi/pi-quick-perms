@@ -99,6 +99,26 @@ describe("quick permission commands", () => {
 		}
 	});
 
+	it("treats commands without an explicit surface as bash patterns", async () => {
+		const dir = await mkdtemp(join(tmpdir(), "quick-perms-bash-shorthand-"));
+		const configPath = join(dir, "config.json");
+		try {
+			const { commands, ctx } = createHarness(configPath);
+
+			await commands.get("allow")?.handler("sudo *", ctx);
+
+			expect(await readJson(configPath)).toEqual({
+				permission: {
+					bash: {
+						"sudo *": "allow",
+					},
+				},
+			});
+		} finally {
+			await rm(dir, { recursive: true, force: true });
+		}
+	});
+
 	it("preserves scalar tool permissions as catch-all rules", async () => {
 		const dir = await mkdtemp(join(tmpdir(), "quick-perms-scalar-"));
 		const configPath = join(dir, "config.json");

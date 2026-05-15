@@ -23,8 +23,22 @@ type ParsedRuleCommand = {
 	pattern: string;
 };
 
+const explicitSurfaces = new Set([
+	"bash",
+	"edit",
+	"external_directory",
+	"find",
+	"grep",
+	"ls",
+	"mcp",
+	"path",
+	"read",
+	"skill",
+	"write",
+]);
+
 const usage =
-	"Usage: /allow <tool> <pattern>, for example /allow bash gh api *";
+	"Usage: /allow [surface] <pattern>, for example /allow bash gh api * or /allow sudo *";
 
 export function registerQuickPermissionCommands(
 	pi: ExtensionAPI,
@@ -113,8 +127,17 @@ function parseRuleCommand(args: string): ParsedRuleCommand {
 	}
 
 	const [tool, ...patternParts] = parts;
+	const normalizedTool = tool.toLowerCase();
+
+	if (!explicitSurfaces.has(normalizedTool)) {
+		return {
+			tool: "bash",
+			pattern: parts.join(" "),
+		};
+	}
+
 	return {
-		tool: tool.toLowerCase(),
+		tool: normalizedTool,
 		pattern: patternParts.join(" "),
 	};
 }

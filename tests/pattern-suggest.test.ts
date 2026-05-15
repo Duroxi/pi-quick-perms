@@ -132,7 +132,7 @@ describe("suggestSessionPattern", () => {
 
     it("label includes path pattern", () => {
       const result = suggestSessionPattern("path", "src/.env");
-      expect(result.label).toBe('Yes, allow path "src/*" for this session');
+      expect(result.label).toBe('Allow path "src/*" for this session');
     });
   });
 
@@ -160,14 +160,12 @@ describe("suggestSessionPattern", () => {
 
     it("label includes the path pattern for path-bearing tools", () => {
       const result = suggestSessionPattern("read", "/tmp/data/file.txt");
-      expect(result.label).toBe(
-        'Yes, allow read "/tmp/data/*" for this session',
-      );
+      expect(result.label).toBe('Allow read "/tmp/data/*" for this session');
     });
 
     it("label shows tool name when pattern is *", () => {
       const result = suggestSessionPattern("find", "*");
-      expect(result.label).toBe('Yes, allow tool "find" for this session');
+      expect(result.label).toBe('Allow tool "find" for this session');
     });
   });
 
@@ -184,21 +182,17 @@ describe("suggestSessionPattern", () => {
   describe("label field", () => {
     it("bash label includes surface prefix and pattern", () => {
       const result = suggestSessionPattern("bash", "git status");
-      expect(result.label).toBe(
-        'Yes, allow bash "git status*" for this session',
-      );
+      expect(result.label).toBe('Allow bash "git status*" for this session');
     });
 
     it("mcp label includes surface prefix and pattern", () => {
       const result = suggestSessionPattern("mcp", "exa:search");
-      expect(result.label).toBe('Yes, allow mcp tool "exa:*" for this session');
+      expect(result.label).toBe('Allow mcp tool "exa:*" for this session');
     });
 
     it("skill label includes surface prefix", () => {
       const result = suggestSessionPattern("skill", "librarian");
-      expect(result.label).toBe(
-        'Yes, allow skill "librarian" for this session',
-      );
+      expect(result.label).toBe('Allow skill "librarian" for this session');
     });
 
     it("external_directory label includes surface prefix", () => {
@@ -207,18 +201,18 @@ describe("suggestSessionPattern", () => {
         "/tmp/foo.txt",
       );
       expect(result.label).toBe(
-        'Yes, allow access to external directory "/tmp/*" for this session',
+        'Allow access to external directory "/tmp/*" for this session',
       );
     });
 
     it("path-bearing tool label includes path pattern", () => {
       const result = suggestSessionPattern("edit", "src/file.ts");
-      expect(result.label).toBe('Yes, allow edit "src/*" for this session');
+      expect(result.label).toBe('Allow edit "src/*" for this session');
     });
 
     it("tool label shows tool name when value is *", () => {
       const result = suggestSessionPattern("edit", "*");
-      expect(result.label).toBe('Yes, allow tool "edit" for this session');
+      expect(result.label).toBe('Allow tool "edit" for this session');
     });
   });
 });
