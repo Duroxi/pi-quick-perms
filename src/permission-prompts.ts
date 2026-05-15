@@ -66,13 +66,13 @@ export function formatUserDeniedReason(
 ): string {
   const base =
     (result.source === "mcp" || result.toolName === "mcp") && result.target
-      ? `User denied MCP target '${result.target}'.`
+      ? `MCP target denied by user: ${result.target}.`
       : result.toolName === "bash" && result.command
-        ? `User denied bash command '${result.command}'.`
-        : `User denied tool '${result.toolName}'.`;
+        ? `Bash command denied by user: ${result.command}.`
+        : `Tool denied by user: ${result.toolName}.`;
   const reasonSuffix = denialReason ? ` Reason: ${denialReason}.` : "";
 
-  return `${base}${reasonSuffix} ${formatPermissionHardStopHint(result)}`;
+  return `${base}${reasonSuffix}`;
 }
 
 export function formatAskPrompt(

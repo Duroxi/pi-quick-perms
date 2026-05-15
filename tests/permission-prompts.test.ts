@@ -160,17 +160,19 @@ describe("formatDenyReason", () => {
 });
 
 describe("formatUserDeniedReason", () => {
-  test("mentions tool name for generic tools", () => {
+  test("uses concise text for user-denied generic tools", () => {
     const result = formatUserDeniedReason(toolResult("read"));
-    expect(result).toContain("read");
-    expect(result).toContain("Hard stop");
+    expect(result).toBe("Tool denied by user: read.");
+    expect(result).not.toContain("Hard stop");
   });
 
-  test("mentions bash command for bash results", () => {
+  test("uses concise text for user-denied bash results", () => {
     const result = formatUserDeniedReason(
-      toolResult("bash", { command: "ls -la" }),
+      toolResult("bash", { command: "sudo ls -l" }),
     );
-    expect(result).toContain("ls -la");
+    expect(result).toBe("Bash command denied by user: sudo ls -l.");
+    expect(result).not.toContain("Hard stop");
+    expect(result).not.toContain("Do not retry");
   });
 
   test("mentions MCP target for mcp results", () => {
