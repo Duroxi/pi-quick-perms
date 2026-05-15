@@ -123,6 +123,24 @@ describe("describePathGate", () => {
     expect(result.messages.unavailableReason).toContain(".env");
   });
 
+  it("uses concise user-denied path text without a hard-stop paragraph", () => {
+    const checkPermission = vi
+      .fn<CheckPermissionFn>()
+      .mockReturnValue(makeCheckResult({ state: "ask" }));
+    const result = describePathGate(
+      makeTcc(),
+      checkPermission,
+    ) as GateDescriptor;
+    const message = result.messages.userDeniedReason({
+      approved: false,
+      state: "denied",
+    });
+
+    expect(message).toBe("Path access denied by user: .env.");
+    expect(message).not.toContain("Hard stop");
+    expect(message).not.toContain("Do not retry");
+  });
+
   it("descriptor decision uses surface 'path' and the file path as value", () => {
     const checkPermission = vi
       .fn<CheckPermissionFn>()

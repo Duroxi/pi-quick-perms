@@ -21,10 +21,13 @@ export interface PermissionDecisionUi {
   input(title: string, placeholder?: string): Promise<string | undefined>;
 }
 
-const APPROVE_OPTION = "Yes";
-const APPROVE_FOR_SESSION_OPTION = "Yes, for this session";
-const DENY_OPTION = "No";
-const DENY_WITH_REASON_OPTION = "No, provide reason";
+const APPROVE_OPTION = "Allow once";
+const APPROVE_FOR_SESSION_OPTION = "Allow for this session";
+const DENY_OPTION = "Deny";
+const DENY_WITH_REASON_OPTION = "Deny with reason";
+const LEGACY_APPROVE_OPTION = "Yes";
+const LEGACY_APPROVE_FOR_SESSION_OPTION = "Yes, for this session";
+const LEGACY_DENY_WITH_REASON_OPTION = "No, provide reason";
 const PERMISSION_DECISION_OPTIONS = [
   APPROVE_OPTION,
   APPROVE_FOR_SESSION_OPTION,
@@ -93,21 +96,21 @@ export async function requestPermissionDecisionFromUi(
     ...decisionOptions,
   ]);
 
-  if (selected === APPROVE_OPTION) {
+  if (selected === APPROVE_OPTION || selected === LEGACY_APPROVE_OPTION) {
     return {
       approved: true,
       state: "approved",
     };
   }
 
-  if (selected === sessionOption) {
+  if (selected === sessionOption || selected === LEGACY_APPROVE_FOR_SESSION_OPTION) {
     return {
       approved: true,
       state: "approved_for_session",
     };
   }
 
-  if (selected === DENY_WITH_REASON_OPTION) {
+  if (selected === DENY_WITH_REASON_OPTION || selected === LEGACY_DENY_WITH_REASON_OPTION) {
     const denialReason = normalizePermissionDenialReason(
       await ui.input(
         `${title}\nShare why this request was denied (optional).`,

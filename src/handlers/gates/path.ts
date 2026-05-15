@@ -49,7 +49,7 @@ export function describePathGate(
         const reasonSuffix = decision.denialReason
           ? ` Reason: ${decision.denialReason}.`
           : "";
-        return `User denied access to path '${filePath}'.${reasonSuffix} Hard stop: this path permission denial is policy-enforced. Do not retry this path, do not attempt a filesystem bypass, and report the block to the user.`;
+        return `Path access denied by user: ${filePath}.${reasonSuffix}`;
       },
     },
     sessionApproval: {

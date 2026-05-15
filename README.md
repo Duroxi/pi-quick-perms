@@ -27,6 +27,24 @@ Permission enforcement extension for the [Pi](https://pi.mariozechner.at/) codin
 pi install npm:@gotgenes/pi-permission-system
 ```
 
+## Local Fork Install
+
+This local fork folds quick policy commands into the enforcement extension and uses clearer permission dialog labels.
+
+To replace the npm package locally:
+
+```bash
+pi remove npm:@gotgenes/pi-permission-system
+pi remove /home/atb/Code/pi-quick-perms
+pi install /home/atb/Code/pi-permission-system
+```
+
+Existing policy remains compatible at:
+
+```text
+~/.pi/agent/extensions/pi-permission-system/config.json
+```
+
 ## Quick Start
 
 1. Create the global config file at `~/.pi/agent/extensions/pi-permission-system/config.json`:
@@ -51,6 +69,18 @@ pi install npm:@gotgenes/pi-permission-system
     ```
 
 2. Start Pi — the extension automatically loads and enforces your policy.
+
+The local fork also provides shortcut commands:
+
+```text
+/allow bash gh api *
+/block bash sudo *
+/ask bash git push *
+/policy
+/policy-reload
+```
+
+`/block` writes gotgenes' `deny` action. Rule mutations save the global config file and call Pi's reload flow automatically.
 
 All permissions use one of three states:
 

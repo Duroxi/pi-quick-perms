@@ -13,6 +13,7 @@ import { requestPermissionDecisionFromUi } from "./permission-dialog";
 import { registerPermissionRpcHandlers } from "./permission-event-rpc";
 import { emitReadyEvent } from "./permission-events";
 import { PermissionPrompter } from "./permission-prompter";
+import { registerQuickPermissionCommands } from "./quick-commands";
 import { PermissionSession } from "./permission-session";
 import {
   createExtensionRuntime,
@@ -79,15 +80,20 @@ export default function piPermissionSystemExtension(pi: ExtensionAPI): void {
     },
   );
 
+  const configPathController = {
+    getConfigPath: () => getGlobalConfigPath(runtime.agentDir),
+  };
+
   registerPermissionSystemCommand(pi, {
     getConfig: () => runtime.config,
     setConfig: (next, ctx) => saveExtensionConfig(runtime, next, ctx),
-    getConfigPath: () => getGlobalConfigPath(runtime.agentDir),
+    getConfigPath: configPathController.getConfigPath,
     getComposedRules: () =>
       runtime.permissionManager.getComposedConfigRules(
         runtime.lastKnownActiveAgentName ?? undefined,
       ),
   });
+  registerQuickPermissionCommands(pi, configPathController);
 
   const rpcHandles = registerPermissionRpcHandlers(pi.events, {
     getPermissionManager: () => runtime.permissionManager,
