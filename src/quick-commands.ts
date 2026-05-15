@@ -122,6 +122,13 @@ function registerRuleCommand(
 function parseRuleCommand(args: string): ParsedRuleCommand {
 	const parts = args.trim().split(/\s+/).filter(Boolean);
 
+	if (parts.length === 1 && parts[0] === "*") {
+		return {
+			tool: "*",
+			pattern: "*",
+		};
+	}
+
 	if (parts.length < 2) {
 		throw new Error(usage);
 	}
@@ -149,6 +156,16 @@ function applyRule(
 	action: PermissionState,
 ): PermissionSystemConfigFile {
 	const permission = { ...(config.permission ?? {}) };
+	if (tool === "*" && pattern === "*") {
+		return {
+			...config,
+			permission: {
+				...permission,
+				"*": action,
+			},
+		};
+	}
+
 	const currentSurface = permission[tool];
 	const toolRules = isRuleMap(currentSurface)
 		? { ...currentSurface }

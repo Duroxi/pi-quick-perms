@@ -99,6 +99,25 @@ describe("quick permission commands", () => {
 		}
 	});
 
+	it("allows all permissions with a bare wildcard", async () => {
+		const dir = await mkdtemp(join(tmpdir(), "quick-perms-allow-all-"));
+		const configPath = join(dir, "config.json");
+		try {
+			const { commands, ctx, reload } = createHarness(configPath);
+
+			await commands.get("allow")?.handler("*", ctx);
+
+			expect(await readJson(configPath)).toEqual({
+				permission: {
+					"*": "allow",
+				},
+			});
+			expect(reload).toHaveBeenCalledTimes(1);
+		} finally {
+			await rm(dir, { recursive: true, force: true });
+		}
+	});
+
 	it("treats commands without an explicit surface as bash patterns", async () => {
 		const dir = await mkdtemp(join(tmpdir(), "quick-perms-bash-shorthand-"));
 		const configPath = join(dir, "config.json");
