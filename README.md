@@ -1,7 +1,3 @@
-<p align="center">
-  <img src="docs/assets/logo.png" alt="pi-quick-perms logo">
-</p>
-
 # pi-quick-perms
 
 [![npm version](https://img.shields.io/npm/v/pi-quick-perms?style=flat&logo=npm&logoColor=white)](https://www.npmjs.com/package/pi-quick-perms) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=flat)](https://opensource.org/licenses/MIT) [![TypeScript](https://img.shields.io/badge/TypeScript-6.x-3178C6?style=flat&logo=typescript&logoColor=white)](https://www.typescriptlang.org/) [![Pi Package](https://img.shields.io/badge/Pi-Package-6366F1?style=flat)](https://pi.mariozechner.at/)
@@ -78,6 +74,36 @@ Project policy remains compatible with the upstream path:
 ```
 
 `/block` writes the underlying `deny` action. Rule mutations save the active policy file and call Pi's reload flow automatically.
+
+### Project and global quick rules
+
+Quick rule commands write to the project policy by default:
+
+```text
+/allow bash gh api *
+/block bash sudo *
+```
+
+Those rules are saved to:
+
+```text
+<cwd>/.pi/extensions/pi-permission-system/config.json
+```
+
+Use `--global` to write a rule for every project:
+
+```text
+/allow --global bash gh api *
+/block --global bash sudo *
+```
+
+Global rules are saved to:
+
+```text
+~/.pi/agent/extensions/pi-quick-perms/config.json
+```
+
+Project policy overrides global policy, so use project rules for repo-specific exceptions and global rules for defaults you want everywhere.
 
 All permissions use one of three states:
 
