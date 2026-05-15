@@ -4,12 +4,11 @@
 
 # pi-quick-perms
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=flat)](https://opensource.org/licenses/MIT) [![TypeScript](https://img.shields.io/badge/TypeScript-6.x-3178C6?style=flat&logo=typescript&logoColor=white)](https://www.typescriptlang.org/) [![Pi Package](https://img.shields.io/badge/Pi-Package-6366F1?style=flat)](https://pi.mariozechner.at/)
+[![npm version](https://img.shields.io/npm/v/pi-quick-perms?style=flat&logo=npm&logoColor=white)](https://www.npmjs.com/package/pi-quick-perms) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=flat)](https://opensource.org/licenses/MIT) [![TypeScript](https://img.shields.io/badge/TypeScript-6.x-3178C6?style=flat&logo=typescript&logoColor=white)](https://www.typescriptlang.org/) [![Pi Package](https://img.shields.io/badge/Pi-Package-6366F1?style=flat)](https://pi.mariozechner.at/)
 
 Permission enforcement extension for the [Pi](https://pi.mariozechner.at/) coding agent that provides centralized, deterministic permission gates over tool, bash, MCP, skill, and special operations plus quick policy commands.
 
-> **Fork notice:** This package is a local fork of `@gotgenes/pi-permission-system`, forked from upstream package version `5.18.1`.
-> Its own package version starts at `1.0.0` under the `pi-quick-perms` identity because it has diverged in config paths, quick commands, and permission prompt UX.
+> **Fork notice:** This project is a fork of `@gotgenes/pi-permission-system` with built-in quick policy commands and prompt UX updates.
 
 ## What It Does
 
@@ -23,15 +22,13 @@ Permission enforcement extension for the [Pi](https://pi.mariozechner.at/) codin
 
 ## Install
 
-This local fork folds quick policy commands into the enforcement extension and uses clearer permission dialog labels.
-
-To load it locally:
+Install from npm:
 
 ```bash
-pi remove npm:@gotgenes/pi-permission-system
-pi remove /home/atb/Code/pi-quick-perms
-pi install /home/atb/Code/pi-quick-perms
+pi install npm:pi-quick-perms
 ```
+
+npm package: [pi-quick-perms](https://www.npmjs.com/package/pi-quick-perms)
 
 Global policy lives at:
 
@@ -70,7 +67,7 @@ Project policy remains compatible with the upstream path:
 
 2. Start Pi — the extension automatically loads and enforces your policy.
 
-The local fork also provides shortcut commands:
+`pi-quick-perms` also provides shortcut commands:
 
 ```text
 /allow bash gh api *
@@ -80,7 +77,7 @@ The local fork also provides shortcut commands:
 /policy-reload
 ```
 
-`/block` writes gotgenes' `deny` action. Rule mutations save the global config file and call Pi's reload flow automatically.
+`/block` writes the underlying `deny` action. Rule mutations save the active policy file and call Pi's reload flow automatically.
 
 All permissions use one of three states:
 
