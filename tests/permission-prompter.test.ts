@@ -27,6 +27,7 @@ import {
 function makeCtx(hasUI: boolean): ExtensionContext {
   return {
     hasUI,
+    cwd: "/project",
     ui: { select: vi.fn(), input: vi.fn() },
     sessionManager: { getSessionDir: vi.fn().mockReturnValue(null) },
   } as unknown as ExtensionContext;
@@ -269,6 +270,40 @@ describe("PermissionPrompter", () => {
         surface: "path",
         toolName: "write",
         message: "Path access: /etc/passwd",
+      }));
+
+      expect(mockConfirmPermission).toHaveBeenCalled();
+    });
+
+    it("does not auto-approve external write even when allowEditsMode is true", async () => {
+      const deps = makeDeps({
+        getConfig: () => ({ ...DEFAULT_EXTENSION_CONFIG, allowEditsMode: true }),
+      });
+      const prompter = new PermissionPrompter(deps);
+      mockConfirmPermission.mockResolvedValue({ approved: true, state: "approved" });
+
+      await prompter.prompt(makeCtx(true), makeDetails({
+        surface: "write",
+        toolName: "write",
+        path: "C:\\tmp\\external-file.txt",
+        message: "write(C:\\tmp\\external-file.txt (1 lines, 10 characters))",
+      }));
+
+      expect(mockConfirmPermission).toHaveBeenCalled();
+    });
+
+    it("does not auto-approve external edit even when allowEditsMode is true", async () => {
+      const deps = makeDeps({
+        getConfig: () => ({ ...DEFAULT_EXTENSION_CONFIG, allowEditsMode: true }),
+      });
+      const prompter = new PermissionPrompter(deps);
+      mockConfirmPermission.mockResolvedValue({ approved: true, state: "approved" });
+
+      await prompter.prompt(makeCtx(true), makeDetails({
+        surface: "edit",
+        toolName: "edit",
+        path: "C:\\tmp\\external-file.txt",
+        message: "edit(C:\\tmp\\external-file.txt (1 replacement: ...))",
       }));
 
       expect(mockConfirmPermission).toHaveBeenCalled();

@@ -11,6 +11,7 @@ import type {
 } from "./permission-dialog";
 import { shouldAutoApprovePermissionState } from "./yolo-mode";
 import { shouldAutoApproveForTool } from "./allow-edits-mode";
+import { isPathOutsideWorkingDirectory } from "./path-utils";
 
 function buildPermissionTitle(
   toolName: string | undefined,
@@ -98,11 +99,17 @@ export class PermissionPrompter implements PermissionPrompterApi {
     }
 
     // 2. Allow-edits mode: auto-approve ask-state checks for write/edit only.
+    //    External paths (outside CWD) are never auto-approved — they follow
+    //    the normal config-driven flow so the user sees every modification.
+    const isExternalPath = details.path && ctx.cwd
+      ? isPathOutsideWorkingDirectory(details.path, ctx.cwd)
+      : false;
     if (
       shouldAutoApproveForTool(
         details.surface,
         "ask",
         this.deps.getConfig(),
+        isExternalPath,
       )
     ) {
       this.writeReviewEntry("permission_request.auto_approved", details);

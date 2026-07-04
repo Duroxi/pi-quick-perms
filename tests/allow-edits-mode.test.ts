@@ -92,4 +92,30 @@ describe("shouldAutoApproveForTool", () => {
       shouldAutoApproveForTool("unknown-tool", "ask", makeConfig(true)),
     ).toBe(false);
   });
+
+  describe("external path guard", () => {
+    test("does not auto-approve write for external paths", () => {
+      expect(
+        shouldAutoApproveForTool("write", "ask", makeConfig(true), true),
+      ).toBe(false);
+    });
+
+    test("does not auto-approve edit for external paths", () => {
+      expect(
+        shouldAutoApproveForTool("edit", "ask", makeConfig(true), true),
+      ).toBe(false);
+    });
+
+    test("still auto-approves write for internal paths (isExternalPath=false)", () => {
+      expect(
+        shouldAutoApproveForTool("write", "ask", makeConfig(true), false),
+      ).toBe(true);
+    });
+
+    test("still auto-approves edit for internal paths (isExternalPath=false)", () => {
+      expect(
+        shouldAutoApproveForTool("edit", "ask", makeConfig(true), false),
+      ).toBe(true);
+    });
+  });
 });

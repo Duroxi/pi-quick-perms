@@ -18,15 +18,18 @@ export function isAllowEditsModeEnabled(
  *   - allowEditsMode is enabled
  *   - state is exactly "ask"
  *   - toolName is a recognized surface (write / edit)
+ *   - the path is NOT an external path (outside CWD)
  */
 export function shouldAutoApproveForTool(
   surface: string | undefined,
   state: PermissionState,
   config: PermissionSystemExtensionConfig,
+  isExternalPath: boolean = false,
 ): boolean {
   if (!isAllowEditsModeEnabled(config)) return false;
   if (state !== "ask") return false;
   if (!surface) return false;
+  if (isExternalPath) return false;
   const normalized = surface.trim().toLowerCase();
-  return normalized === "write" || normalized === "edit";
+  return AUTO_APPROVE_SURFACES.has(normalized);
 }
