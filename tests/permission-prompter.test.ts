@@ -212,6 +212,30 @@ describe("PermissionPrompter", () => {
         expect.objectContaining({ requestId: "req-123" }),
       );
     });
+
+    it("falls through to confirmPermission for write when allowEditsMode is false", async () => {
+      const deps = makeDeps({
+        getConfig: () => ({ ...DEFAULT_EXTENSION_CONFIG, allowEditsMode: false }),
+      });
+      const prompter = new PermissionPrompter(deps);
+      mockConfirmPermission.mockResolvedValue({ approved: true, state: "approved" });
+
+      await prompter.prompt(makeCtx(true), makeDetails({ toolName: "write" }));
+
+      expect(mockConfirmPermission).toHaveBeenCalled();
+    });
+
+    it("falls through to confirmPermission for edit when allowEditsMode is false", async () => {
+      const deps = makeDeps({
+        getConfig: () => ({ ...DEFAULT_EXTENSION_CONFIG, allowEditsMode: false }),
+      });
+      const prompter = new PermissionPrompter(deps);
+      mockConfirmPermission.mockResolvedValue({ approved: true, state: "approved" });
+
+      await prompter.prompt(makeCtx(true), makeDetails({ toolName: "edit" }));
+
+      expect(mockConfirmPermission).toHaveBeenCalled();
+    });
   });
 
   // ── Non-yolo path ────────────────────────────────────────────────────────

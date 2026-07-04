@@ -283,6 +283,58 @@ describe("formatAskPrompt", () => {
     expect(result).toBe("write(/src/foo.ts (1 lines, 0 characters))");
   });
 
+  test("formats edit with path and single replacement", () => {
+    const result = formatAskPrompt(
+      toolResult("edit"),
+      { path: "/src/foo.ts", edits: [{ oldText: "a\nb", newText: "c\nd" }] },
+    );
+    expect(result).toBe(
+      "edit(/src/foo.ts (1 replacement: edit #1 replaces 2 line with 2 line))",
+    );
+  });
+
+  test("formats edit with multiple replacements", () => {
+    const result = formatAskPrompt(
+      toolResult("edit"),
+      {
+        path: "/src/foo.ts",
+        edits: [
+          { oldText: "a", newText: "b" },
+          { oldText: "c", newText: "d" },
+        ],
+      },
+    );
+    expect(result).toBe(
+      "edit(/src/foo.ts (2 replacement: edit #1 replaces 1 line with 1 line, plus 1 additional edit))",
+    );
+  });
+
+  test("formats edit without path", () => {
+    const result = formatAskPrompt(
+      toolResult("edit"),
+      { edits: [{ oldText: "a", newText: "b" }] },
+    );
+    expect(result).toBe("edit((1 replacement: edit #1 replaces 1 line with 1 line))");
+  });
+
+  test("formats edit with empty edits array", () => {
+    const result = formatAskPrompt(
+      toolResult("edit"),
+      { path: "/src/foo.ts", edits: [] },
+    );
+    expect(result).toBe("edit(/src/foo.ts with edit input)");
+  });
+
+  test("formats edit with oldText/newText fallback", () => {
+    const result = formatAskPrompt(
+      toolResult("edit"),
+      { path: "/src/foo.ts", oldText: "a", newText: "b" },
+    );
+    expect(result).toBe(
+      "edit(/src/foo.ts (1 replacement: edit #1 replaces 1 line with 1 line))",
+    );
+  });
+
   test("handles unknown tool with mocked input preview", () => {
     const result = formatAskPrompt(
       toolResult("task"),

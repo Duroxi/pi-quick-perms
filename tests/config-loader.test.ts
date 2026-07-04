@@ -412,4 +412,37 @@ describe("loadAndMergeConfigs", () => {
       true,
     );
   });
+
+  it("preserves allowEditsMode through global config", () => {
+    writeGlobal({ allowEditsMode: true });
+
+    const result = loadAndMergeConfigs(agentDir, cwd, extensionRoot);
+    expect(result.issues).toEqual([]);
+    expect(result.merged.allowEditsMode).toBe(true);
+  });
+
+  it("preserves allowEditsMode through project config", () => {
+    writeProject({ allowEditsMode: true });
+
+    const result = loadAndMergeConfigs(agentDir, cwd, extensionRoot);
+    expect(result.issues).toEqual([]);
+    expect(result.merged.allowEditsMode).toBe(true);
+  });
+
+  it("global allowEditsMode=false is overridden by project allowEditsMode=true", () => {
+    writeGlobal({ allowEditsMode: false });
+    writeProject({ allowEditsMode: true });
+
+    const result = loadAndMergeConfigs(agentDir, cwd, extensionRoot);
+    expect(result.merged.allowEditsMode).toBe(true);
+  });
+
+  it("defaults allowEditsMode to false when not present in any config", () => {
+    writeGlobal({ permission: { "*": "ask" } });
+
+    const result = loadAndMergeConfigs(agentDir, cwd, extensionRoot);
+    // merged is UnifiedPermissionConfig, not yet normalized to PermissionSystemExtensionConfig
+    // allowEditsMode is undefined at this stage; normalizePermissionSystemConfig will default it to false
+    expect(result.merged.allowEditsMode).toBeUndefined();
+  });
 });
