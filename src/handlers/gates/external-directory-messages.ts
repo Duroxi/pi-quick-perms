@@ -3,12 +3,12 @@ export function formatExternalDirectoryHardStopHint(): string {
 }
 
 export function formatExternalDirectoryAskPrompt(
-  toolName: string,
+  _toolName: string,
   pathValue: string,
   _cwd: string,
   _agentName?: string,
 ): string {
-  return `${toolName}(${pathValue})`;
+  return `External directory access: ${pathValue}`;
 }
 
 export function formatExternalDirectoryDenyReason(
@@ -32,11 +32,11 @@ export function formatExternalDirectoryUserDeniedReason(
 
 export function formatBashExternalDirectoryAskPrompt(
   command: string,
-  externalPaths: string[],
+  _externalPaths: string[],
   _cwd: string,
   _agentName?: string,
 ): string {
-  return `bash(${command})`;
+  return `Bash external directory access: ${command}`;
 }
 
 export function formatBashExternalDirectoryDenyReason(

@@ -98,5 +98,5 @@ export function formatPathAskPrompt(
   pathValue: string,
   _agentName?: string,
 ): string {
-  return `${toolName}(${pathValue})`;
+  return `Path access: ${pathValue}`;
 }

@@ -4,7 +4,7 @@ import { deriveApprovalPattern } from "../../session-rules";
 import type { PermissionCheckResult } from "../../types";
 import { extractTokensForPathRules } from "./bash-path-extractor";
 import type { GateResult } from "./descriptor";
-import { formatPathAskPrompt, formatPathDenyReason } from "./path";
+import { formatPathDenyReason } from "./path";
 import type { ToolCallContext } from "./types";
 
 /** Function type for checkPermission used by the descriptor factory. */
@@ -94,10 +94,7 @@ export async function describeBashPathGate(
   if (!worstCheck || !worstToken) return null;
 
   const pattern = deriveApprovalPattern(worstToken);
-  const askMessage = formatPathAskPrompt(
-    tcc.toolName,
-    worstToken,
-  );
+  const askMessage = `Bash path access: ${command}`;
 
   return {
     surface: "path",

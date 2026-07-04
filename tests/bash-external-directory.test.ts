@@ -827,32 +827,34 @@ describe("extractExternalPathsFromBashCommand", () => {
 });
 
 describe("formatBashExternalDirectoryAskPrompt", () => {
-  test("formats bash command", () => {
+  test("formats bash external directory access message", () => {
     const result = formatBashExternalDirectoryAskPrompt(
       "cat /etc/hosts",
       ["/etc/hosts"],
       "/projects/my-app",
     );
-    expect(result).toBe("bash(cat /etc/hosts)");
+    expect(result).toBe("Bash external directory access: cat /etc/hosts");
   });
 
-  test("formats bash command with agent name (ignored)", () => {
+  test("formats bash external directory access with agent name (ignored)", () => {
     const result = formatBashExternalDirectoryAskPrompt(
       "cat /etc/hosts",
       ["/etc/hosts"],
       "/projects/my-app",
       "my-agent",
     );
-    expect(result).toBe("bash(cat /etc/hosts)");
+    expect(result).toBe("Bash external directory access: cat /etc/hosts");
   });
 
-  test("formats bash command with multiple external paths", () => {
+  test("formats bash external directory access with multiple external paths", () => {
     const result = formatBashExternalDirectoryAskPrompt(
       "diff /etc/hosts /var/log/syslog",
       ["/etc/hosts", "/var/log/syslog"],
       "/projects/my-app",
     );
-    expect(result).toBe("bash(diff /etc/hosts /var/log/syslog)");
+    expect(result).toBe(
+      "Bash external directory access: diff /etc/hosts /var/log/syslog",
+    );
   });
 });
 

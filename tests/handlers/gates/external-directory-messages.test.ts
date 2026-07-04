@@ -18,22 +18,22 @@ describe("formatExternalDirectoryHardStopHint", () => {
 });
 
 describe("formatExternalDirectoryAskPrompt", () => {
-  test("formats tool name and path", () => {
+  test("formats external directory access message", () => {
     const result = formatExternalDirectoryAskPrompt(
       "read",
       "/etc/passwd",
       "/projects/my-app",
     );
-    expect(result).toBe("read(/etc/passwd)");
+    expect(result).toBe("External directory access: /etc/passwd");
   });
 
-  test("formats write tool with path", () => {
+  test("formats external directory access for write tool", () => {
     const result = formatExternalDirectoryAskPrompt(
       "write",
       "/tmp/out.txt",
       "/projects/my-app",
     );
-    expect(result).toBe("write(/tmp/out.txt)");
+    expect(result).toBe("External directory access: /tmp/out.txt");
   });
 });
 
@@ -92,22 +92,33 @@ describe("formatExternalDirectoryUserDeniedReason", () => {
 });
 
 describe("formatBashExternalDirectoryAskPrompt", () => {
-  test("formats bash command", () => {
+  test("formats bash external directory access message", () => {
     const result = formatBashExternalDirectoryAskPrompt(
       "cat /etc/passwd",
       ["/etc/passwd"],
       "/projects/my-app",
     );
-    expect(result).toBe("bash(cat /etc/passwd)");
+    expect(result).toBe("Bash external directory access: cat /etc/passwd");
   });
 
-  test("formats bash command without agent name", () => {
+  test("formats bash external directory access without agent name", () => {
     const result = formatBashExternalDirectoryAskPrompt(
       "ls /tmp",
       ["/tmp"],
       "/projects/my-app",
     );
-    expect(result).toBe("bash(ls /tmp)");
+    expect(result).toBe("Bash external directory access: ls /tmp");
+  });
+
+  test("formats bash external directory access with multiple external paths", () => {
+    const result = formatBashExternalDirectoryAskPrompt(
+      "diff /etc/hosts /var/log/syslog",
+      ["/etc/hosts", "/var/log/syslog"],
+      "/projects/my-app",
+    );
+    expect(result).toBe(
+      "Bash external directory access: diff /etc/hosts /var/log/syslog",
+    );
   });
 });
 
