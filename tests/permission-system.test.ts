@@ -1998,7 +1998,7 @@ test("tool_call prompts for external_directory and then falls through to normal 
 
     assert.deepEqual(result, {});
     assert.equal(harness.prompts.length, 1);
-    assert.match(harness.prompts[0], /external directory access/i);
+    assert.match(harness.prompts[0], /Permission Required/);
     assert.match(harness.prompts[0], /grep/);
     assert.match(harness.prompts[0], /external-search-root/);
   } finally {

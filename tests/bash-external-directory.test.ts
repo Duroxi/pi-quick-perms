@@ -827,35 +827,32 @@ describe("extractExternalPathsFromBashCommand", () => {
 });
 
 describe("formatBashExternalDirectoryAskPrompt", () => {
-  test("includes command, external paths, and CWD", () => {
+  test("formats bash command", () => {
     const result = formatBashExternalDirectoryAskPrompt(
       "cat /etc/hosts",
       ["/etc/hosts"],
       "/projects/my-app",
     );
-    expect(result).toContain("cat /etc/hosts");
-    expect(result).toContain("/etc/hosts");
-    expect(result).toContain("/projects/my-app");
+    expect(result).toBe("bash(cat /etc/hosts)");
   });
 
-  test("includes agent name when provided", () => {
+  test("formats bash command with agent name (ignored)", () => {
     const result = formatBashExternalDirectoryAskPrompt(
       "cat /etc/hosts",
       ["/etc/hosts"],
       "/projects/my-app",
       "my-agent",
     );
-    expect(result).toContain("my-agent");
+    expect(result).toBe("bash(cat /etc/hosts)");
   });
 
-  test("shows multiple external paths", () => {
+  test("formats bash command with multiple external paths", () => {
     const result = formatBashExternalDirectoryAskPrompt(
       "diff /etc/hosts /var/log/syslog",
       ["/etc/hosts", "/var/log/syslog"],
       "/projects/my-app",
     );
-    expect(result).toContain("/etc/hosts");
-    expect(result).toContain("/var/log/syslog");
+    expect(result).toBe("bash(diff /etc/hosts /var/log/syslog)");
   });
 });
 

@@ -18,28 +18,22 @@ describe("formatExternalDirectoryHardStopHint", () => {
 });
 
 describe("formatExternalDirectoryAskPrompt", () => {
-  test("uses 'Current agent' when no agent name provided", () => {
+  test("formats tool name and path", () => {
     const result = formatExternalDirectoryAskPrompt(
       "read",
       "/etc/passwd",
       "/projects/my-app",
     );
-    expect(result).toContain("Current agent");
-    expect(result).toContain("read");
-    expect(result).toContain("/etc/passwd");
-    expect(result).toContain("/projects/my-app");
+    expect(result).toBe("read(/etc/passwd)");
   });
 
-  test("uses agent name when provided", () => {
+  test("formats write tool with path", () => {
     const result = formatExternalDirectoryAskPrompt(
       "write",
       "/tmp/out.txt",
       "/projects/my-app",
-      "my-agent",
     );
-    expect(result).toContain("Agent 'my-agent'");
-    expect(result).toContain("write");
-    expect(result).toContain("/tmp/out.txt");
+    expect(result).toBe("write(/tmp/out.txt)");
   });
 });
 
@@ -98,26 +92,22 @@ describe("formatExternalDirectoryUserDeniedReason", () => {
 });
 
 describe("formatBashExternalDirectoryAskPrompt", () => {
-  test("includes command, paths, cwd, and agent name", () => {
+  test("formats bash command", () => {
     const result = formatBashExternalDirectoryAskPrompt(
       "cat /etc/passwd",
       ["/etc/passwd"],
       "/projects/my-app",
-      "my-agent",
     );
-    expect(result).toContain("Agent 'my-agent'");
-    expect(result).toContain("cat /etc/passwd");
-    expect(result).toContain("/etc/passwd");
-    expect(result).toContain("/projects/my-app");
+    expect(result).toBe("bash(cat /etc/passwd)");
   });
 
-  test("uses 'Current agent' when no agent name provided", () => {
+  test("formats bash command without agent name", () => {
     const result = formatBashExternalDirectoryAskPrompt(
       "ls /tmp",
       ["/tmp"],
       "/projects/my-app",
     );
-    expect(result).toContain("Current agent");
+    expect(result).toBe("bash(ls /tmp)");
   });
 });
 

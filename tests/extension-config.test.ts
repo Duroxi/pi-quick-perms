@@ -85,22 +85,26 @@ describe("normalizePermissionSystemConfig", () => {
       debugLog: true,
       permissionReviewLog: false,
       yoloMode: true,
+      allowEditsMode: false,
     });
   });
 
   it("defaults debugLog to false when missing", () => {
     const result = normalizePermissionSystemConfig({});
     expect(result.debugLog).toBe(false);
+    expect(result.allowEditsMode).toBe(false);
   });
 
   it("defaults permissionReviewLog to true when missing", () => {
     const result = normalizePermissionSystemConfig({});
     expect(result.permissionReviewLog).toBe(true);
+    expect(result.allowEditsMode).toBe(false);
   });
 
   it("defaults yoloMode to false when missing", () => {
     const result = normalizePermissionSystemConfig({});
     expect(result.yoloMode).toBe(false);
+    expect(result.allowEditsMode).toBe(false);
   });
 
   it("coerces non-boolean values to their defaults", () => {
@@ -120,6 +124,7 @@ describe("normalizePermissionSystemConfig", () => {
       debugLog: false,
       permissionReviewLog: true,
       yoloMode: false,
+      allowEditsMode: false,
     });
   });
 });

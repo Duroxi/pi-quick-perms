@@ -130,6 +130,90 @@ describe("PermissionPrompter", () => {
     });
   });
 
+  // ── Allow-edits mode auto-approve ──────────────────────────────────────
+
+  describe("allow-edits mode auto-approve", () => {
+    it("returns approved for write without calling confirmPermission when allowEditsMode is true", async () => {
+      const deps = makeDeps({
+        getConfig: () => ({ ...DEFAULT_EXTENSION_CONFIG, allowEditsMode: true }),
+      });
+      const prompter = new PermissionPrompter(deps);
+
+      const decision = await prompter.prompt(makeCtx(false), makeDetails({
+        toolName: "write",
+      }));
+
+      expect(decision).toEqual({
+        approved: true,
+        state: "approved",
+        autoApproved: true,
+      });
+      expect(mockConfirmPermission).not.toHaveBeenCalled();
+    });
+
+    it("returns approved for edit without calling confirmPermission when allowEditsMode is true", async () => {
+      const deps = makeDeps({
+        getConfig: () => ({ ...DEFAULT_EXTENSION_CONFIG, allowEditsMode: true }),
+      });
+      const prompter = new PermissionPrompter(deps);
+
+      const decision = await prompter.prompt(makeCtx(false), makeDetails({
+        toolName: "edit",
+      }));
+
+      expect(decision).toEqual({
+        approved: true,
+        state: "approved",
+        autoApproved: true,
+      });
+      expect(mockConfirmPermission).not.toHaveBeenCalled();
+    });
+
+    it("falls through to confirmPermission for non-write/edit tools", async () => {
+      const deps = makeDeps({
+        getConfig: () => ({ ...DEFAULT_EXTENSION_CONFIG, allowEditsMode: true }),
+      });
+      const prompter = new PermissionPrompter(deps);
+      mockConfirmPermission.mockResolvedValue({ approved: true, state: "approved" });
+
+      await prompter.prompt(makeCtx(true), makeDetails({
+        toolName: "bash",
+      }));
+
+      expect(mockConfirmPermission).toHaveBeenCalled();
+    });
+
+    it("falls through when toolName is undefined", async () => {
+      const deps = makeDeps({
+        getConfig: () => ({ ...DEFAULT_EXTENSION_CONFIG, allowEditsMode: true }),
+      });
+      const prompter = new PermissionPrompter(deps);
+      mockConfirmPermission.mockResolvedValue({ approved: true, state: "approved" });
+
+      await prompter.prompt(makeCtx(true), makeDetails({
+        // omit toolName entirely
+      }));
+
+      expect(mockConfirmPermission).toHaveBeenCalled();
+    });
+
+    it("logs permission_request.auto_approved for write", async () => {
+      const writeReviewLog = vi.fn();
+      const deps = makeDeps({
+        getConfig: () => ({ ...DEFAULT_EXTENSION_CONFIG, allowEditsMode: true }),
+        writeReviewLog,
+      });
+      const prompter = new PermissionPrompter(deps);
+
+      await prompter.prompt(makeCtx(false), makeDetails({ toolName: "write" }));
+
+      expect(writeReviewLog).toHaveBeenCalledWith(
+        "permission_request.auto_approved",
+        expect.objectContaining({ requestId: "req-123" }),
+      );
+    });
+  });
+
   // ── Non-yolo path ────────────────────────────────────────────────────────
 
   describe("non-yolo path (UI present)", () => {
@@ -243,6 +327,7 @@ describe("PermissionPrompter", () => {
       expect(mockConfirmPermission).toHaveBeenCalledWith(
         expect.anything(),
         expect.any(String),
+        expect.any(String),
         expect.anything(),
         { sessionLabel: "Yes, for 'read' tool" },
       );
@@ -260,6 +345,7 @@ describe("PermissionPrompter", () => {
 
       expect(mockConfirmPermission).toHaveBeenCalledWith(
         expect.anything(),
+        expect.any(String),
         expect.any(String),
         expect.anything(),
         undefined,
@@ -280,6 +366,7 @@ describe("PermissionPrompter", () => {
       expect(mockConfirmPermission).toHaveBeenCalledWith(
         expect.anything(),
         "Allow bash: git status?",
+        expect.any(String),
         expect.anything(),
         undefined,
       );

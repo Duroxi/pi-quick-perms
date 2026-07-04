@@ -3,6 +3,14 @@ import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 // Mock tool-input-preview collaborator before importing the module under test.
 vi.mock("../src/tool-input-preview.js", () => ({
   formatToolInputForPrompt: vi.fn(() => "mocked preview"),
+  getPromptPath: (input: Record<string, unknown>) =>
+    typeof input.path === "string"
+      ? input.path
+      : typeof input.file_path === "string"
+        ? input.file_path
+        : null,
+  countTextLines: (value: string) => value.split(/\r\n|\r|\n/).length,
+  formatCount: (value: number, singular: string) => `${value} ${singular}`,
 }));
 
 import {
@@ -192,102 +200,112 @@ describe("formatUserDeniedReason", () => {
 });
 
 describe("formatAskPrompt", () => {
-  test("uses 'Current agent' when no agent name given", () => {
-    const result = formatAskPrompt(toolResult("read"), undefined, {
+  test("formats read with path", () => {
+    const result = formatAskPrompt(toolResult("read"), {
       path: "/src",
     });
-    expect(result).toContain("Current agent");
+    expect(result).toBe("read(/src)");
   });
 
-  test("uses agent name when provided", () => {
-    const result = formatAskPrompt(toolResult("read"), "my-agent", {
-      path: "/src",
-    });
-    expect(result).toContain("Agent 'my-agent'");
+  test("formats write with path and matched pattern", () => {
+    const result = formatAskPrompt(
+      toolResult("write", { matchedPattern: ".env.*" }),
+      { path: ".env" },
+    );
+    expect(result).toBe("write(.env (1 lines, 0 characters)) [matched: .env.*]");
   });
 
-  test("formats bash prompt with command and no tool-input-preview call", () => {
+  test("formats bash with command", () => {
     const result = formatAskPrompt(
       toolResult("bash", { command: "git status" }),
     );
-    expect(result).toContain("git status");
-    expect(result).toContain("Allow this command?");
+    expect(result).toBe("bash(git status)");
     expect(mockedFormatToolInput).not.toHaveBeenCalled();
   });
 
-  test("formats bash prompt with matched pattern", () => {
+  test("formats bash with command and matched pattern", () => {
     const result = formatAskPrompt(
       toolResult("bash", { command: "git push", matchedPattern: "git *" }),
     );
-    expect(result).toContain("matched 'git *'");
+    expect(result).toBe("bash(git push) [matched: git *]");
   });
 
-  test("formats MCP prompt with target", () => {
+  test("formats mcp with target", () => {
     const result = formatAskPrompt(mcpResult("server:query"));
-    expect(result).toContain("server:query");
-    expect(result).toContain("Allow this call?");
+    expect(result).toBe("mcp(server:query)");
     expect(mockedFormatToolInput).not.toHaveBeenCalled();
   });
 
-  test("formats MCP prompt with matched pattern", () => {
+  test("formats mcp with target and matched pattern", () => {
     const result = formatAskPrompt(
       mcpResult("server:query", { matchedPattern: "server:*" }),
     );
-    expect(result).toContain("matched 'server:*'");
+    expect(result).toBe("mcp(server:query) [matched: server:*]");
   });
 
-  test("calls formatToolInputForPrompt for non-bash non-mcp tools", () => {
-    mockedFormatToolInput.mockReturnValue("for '/src/foo.ts'");
-    const result = formatAskPrompt(toolResult("read"), undefined, {
-      path: "/src/foo.ts",
-    });
-    expect(mockedFormatToolInput).toHaveBeenCalledWith("read", {
-      path: "/src/foo.ts",
-    });
-    expect(result).toContain("for '/src/foo.ts'");
-    expect(result).toContain("Allow this call?");
+  test("formats grep with pattern and path", () => {
+    const result = formatAskPrompt(
+      toolResult("grep"),
+      { pattern: "console.log", path: "/src" },
+    );
+    expect(result).toBe("grep(console.log /src)");
   });
 
-  test("omits input suffix when formatToolInputForPrompt returns empty string", () => {
-    mockedFormatToolInput.mockReturnValue("");
-    const result = formatAskPrompt(toolResult("task"));
-    expect(result).toContain("task");
-    expect(result).not.toContain("undefined");
+  test("formats find with path", () => {
+    const result = formatAskPrompt(
+      toolResult("find"),
+      { path: "/src" },
+    );
+    expect(result).toBe("find(/src)");
+  });
+
+  test("formats find with path and name", () => {
+    const result = formatAskPrompt(
+      toolResult("find"),
+      { path: "/src", name: "*.test.ts" },
+    );
+    expect(result).toBe('find(/src --name "*.test.ts")');
+  });
+
+  test("formats ls with path", () => {
+    const result = formatAskPrompt(
+      toolResult("ls"),
+      { path: "/src" },
+    );
+    expect(result).toBe("ls(/src)");
+  });
+
+  test("omits matched pattern when it is wildcard", () => {
+    const result = formatAskPrompt(
+      toolResult("write", { matchedPattern: "*" }),
+      { path: "/src/foo.ts" },
+    );
+    expect(result).toBe("write(/src/foo.ts (1 lines, 0 characters))");
+  });
+
+  test("handles unknown tool with mocked input preview", () => {
+    const result = formatAskPrompt(
+      toolResult("task"),
+      { path: "/src" },
+    );
+    expect(result).toBe("task(mocked preview)");
   });
 });
 
 describe("formatSkillAskPrompt", () => {
-  test("includes skill name and agent name", () => {
-    const result = formatSkillAskPrompt("librarian", "my-agent");
-    expect(result).toContain("librarian");
-    expect(result).toContain("Agent 'my-agent'");
-  });
-
-  test("uses 'Current agent' without agent name", () => {
+  test("returns skill(name) format", () => {
     const result = formatSkillAskPrompt("librarian");
-    expect(result).toContain("Current agent");
-    expect(result).toContain("librarian");
+    expect(result).toBe("skill(librarian)");
   });
 });
 
 describe("formatSkillPathAskPrompt", () => {
-  test("includes skill name, read path, and agent name", () => {
-    const result = formatSkillPathAskPrompt(
-      skillEntry("librarian"),
-      "/skills/librarian/SKILL.md",
-      "my-agent",
-    );
-    expect(result).toContain("librarian");
-    expect(result).toContain("/skills/librarian/SKILL.md");
-    expect(result).toContain("Agent 'my-agent'");
-  });
-
-  test("uses 'Current agent' without agent name", () => {
+  test("returns read(path) format", () => {
     const result = formatSkillPathAskPrompt(
       skillEntry("librarian"),
       "/skills/librarian/SKILL.md",
     );
-    expect(result).toContain("Current agent");
+    expect(result).toBe("read(/skills/librarian/SKILL.md)");
   });
 });
 
