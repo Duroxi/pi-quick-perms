@@ -2,6 +2,9 @@ export function formatExternalDirectoryHardStopHint(): string {
   return "Hard stop: this external directory permission denial is policy-enforced. Do not retry this path, do not attempt a filesystem bypass, and report the block to the user.";
 }
 
+/**
+ * @deprecated This prompt now shows the external path only. `toolName` is no longer used.
+ */
 export function formatExternalDirectoryAskPrompt(
   _toolName: string,
   pathValue: string,

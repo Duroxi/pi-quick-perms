@@ -241,6 +241,38 @@ describe("PermissionPrompter", () => {
 
       expect(mockConfirmPermission).toHaveBeenCalled();
     });
+
+    it("does not auto-approve external_directory gate even when toolName is write", async () => {
+      const deps = makeDeps({
+        getConfig: () => ({ ...DEFAULT_EXTENSION_CONFIG, allowEditsMode: true }),
+      });
+      const prompter = new PermissionPrompter(deps);
+      mockConfirmPermission.mockResolvedValue({ approved: true, state: "approved" });
+
+      await prompter.prompt(makeCtx(true), makeDetails({
+        surface: "external_directory",
+        toolName: "write",
+        message: "External directory access: /etc/passwd",
+      }));
+
+      expect(mockConfirmPermission).toHaveBeenCalled();
+    });
+
+    it("does not auto-approve path gate even when toolName is write", async () => {
+      const deps = makeDeps({
+        getConfig: () => ({ ...DEFAULT_EXTENSION_CONFIG, allowEditsMode: true }),
+      });
+      const prompter = new PermissionPrompter(deps);
+      mockConfirmPermission.mockResolvedValue({ approved: true, state: "approved" });
+
+      await prompter.prompt(makeCtx(true), makeDetails({
+        surface: "path",
+        toolName: "write",
+        message: "Path access: /etc/passwd",
+      }));
+
+      expect(mockConfirmPermission).toHaveBeenCalled();
+    });
   });
 
   // ── Non-yolo path ────────────────────────────────────────────────────────
