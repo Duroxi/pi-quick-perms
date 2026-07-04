@@ -1,6 +1,7 @@
 import type { SkillPromptEntry } from "./skill-prompt-sanitizer";
-import { formatToolInputForPrompt } from "./tool-input-preview";
+import { formatToolInputForPrompt, getPromptPath, countTextLines, formatCount } from "./tool-input-preview";
 import type { PermissionCheckResult } from "./types";
+import { getNonEmptyString, toRecord } from "./common";
 
 export function formatMissingToolNameReason(): string {
   return "Tool call was blocked because no tool name was provided. Use a registered tool name from pi.getAllTools().";
@@ -77,48 +78,110 @@ export function formatUserDeniedReason(
 
 export function formatAskPrompt(
   result: PermissionCheckResult,
-  agentName?: string,
   input?: unknown,
 ): string {
-  const subject = agentName ? `Agent '${agentName}'` : "Current agent";
+  const summary = buildToolSummary(result, input);
 
-  if (result.toolName === "bash") {
-    const patternInfo = result.matchedPattern
-      ? ` (matched '${result.matchedPattern}')`
-      : "";
-    return `${subject} requested bash command '${result.command || ""}'${patternInfo}. Allow this command?`;
+  if (result.matchedPattern && result.matchedPattern !== "*") {
+    return `${summary} [matched: ${result.matchedPattern}]`;
   }
 
-  if ((result.source === "mcp" || result.toolName === "mcp") && result.target) {
-    const patternInfo = result.matchedPattern
-      ? ` (matched '${result.matchedPattern}')`
-      : "";
-    return `${subject} requested MCP target '${result.target}'${patternInfo}. Allow this call?`;
-  }
+  return summary;
+}
 
-  const patternInfo = result.matchedPattern
-    ? ` (matched '${result.matchedPattern}')`
-    : "";
-  const inputPreview = formatToolInputForPrompt(result.toolName, input);
-  const inputSuffix = inputPreview ? ` ${inputPreview}` : "";
-  return `${subject} requested tool '${result.toolName}'${patternInfo}${inputSuffix}. Allow this call?`;
+function buildToolSummary(
+  result: PermissionCheckResult,
+  input?: unknown,
+): string {
+  const toolName = result.toolName;
+  const inputRecord = toRecord(input);
+
+  switch (toolName) {
+    case "bash": {
+      const command = result.command || "";
+      return `bash(${command})`;
+    }
+    case "read": {
+      const path = getPromptPath(inputRecord);
+      return `read(${path || ""})`;
+    }
+    case "write": {
+      const path = getPromptPath(inputRecord);
+      const content = typeof inputRecord.content === "string" ? inputRecord.content : "";
+      const lines = countTextLines(content);
+      const chars = content.length;
+      const stats = `(${lines} lines, ${chars} characters)`;
+      return path ? `write(${path} ${stats})` : `write(${stats})`;
+    }
+    case "edit": {
+      const path = getPromptPath(inputRecord);
+      const rawEdits = Array.isArray(inputRecord.edits)
+        ? inputRecord.edits
+        : typeof inputRecord.oldText === "string" && typeof inputRecord.newText === "string"
+          ? [{ oldText: inputRecord.oldText, newText: inputRecord.newText }]
+          : [];
+
+      const edits = rawEdits
+        .map((edit) => toRecord(edit))
+        .filter(
+          (edit) =>
+            typeof edit.oldText === "string" && typeof edit.newText === "string",
+        );
+
+      if (edits.length === 0) {
+        return path ? `edit(${path} with edit input)` : `edit()`;
+      }
+
+      const firstEdit = edits[0];
+      const oldText = String(firstEdit.oldText);
+      const newText = String(firstEdit.newText);
+      const firstEditSummary = `edit #1 replaces ${formatCount(countTextLines(oldText), "line", "lines")} with ${formatCount(countTextLines(newText), "line", "lines")}`;
+      const extraEdits =
+        edits.length > 1
+          ? `, plus ${formatCount(edits.length - 1, "additional edit", "additional edits")}`
+          : "";
+      const summary = `(${formatCount(edits.length, "replacement", "replacements")}: ${firstEditSummary}${extraEdits})`;
+      return path ? `edit(${path} ${summary})` : `edit(${summary})`;
+    }
+    case "grep": {
+      const pattern = getNonEmptyString(inputRecord.pattern) || "";
+      const path = getPromptPath(inputRecord);
+      return path ? `grep(${pattern} ${path})` : `grep(${pattern})`;
+    }
+    case "find": {
+      const path = getPromptPath(inputRecord) || ".";
+      const name = getNonEmptyString(inputRecord.name);
+      const extra = name ? ` --name "${name}"` : "";
+      return `find(${path}${extra})`;
+    }
+    case "ls": {
+      const path = getPromptPath(inputRecord) || ".";
+      return `ls(${path})`;
+    }
+    case "mcp": {
+      return `mcp(${result.target || ""})`;
+    }
+    default: {
+      const jsonPreview = formatToolInputForPrompt(toolName, input);
+      if (jsonPreview) {
+        return `${toolName}(${jsonPreview})`;
+      }
+      return `${toolName}()`;
+    }
+  }
 }
 
 export function formatSkillAskPrompt(
   skillName: string,
-  agentName?: string,
 ): string {
-  const subject = agentName ? `Agent '${agentName}'` : "Current agent";
-  return `${subject} requested skill '${skillName}'. Allow loading this skill?`;
+  return `skill(${skillName})`;
 }
 
 export function formatSkillPathAskPrompt(
   skill: SkillPromptEntry,
   readPath: string,
-  agentName?: string,
 ): string {
-  const subject = agentName ? `Agent '${agentName}'` : "Current agent";
-  return `${subject} requested access to skill '${skill.name}' via '${readPath}'. Allow this read?`;
+  return `read(${readPath})`;
 }
 
 export function formatSkillPathDenyReason(

@@ -97,7 +97,6 @@ export async function describeBashPathGate(
   const askMessage = formatPathAskPrompt(
     tcc.toolName,
     worstToken,
-    tcc.agentName ?? undefined,
   );
 
   return {

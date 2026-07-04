@@ -62,7 +62,6 @@ export function describeToolGate(
 
   const askMessage = formatAskPrompt(
     check,
-    tcc.agentName ?? undefined,
     tcc.input,
   );
 

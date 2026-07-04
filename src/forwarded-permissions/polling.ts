@@ -85,14 +85,7 @@ function getContextSystemPrompt(ctx: ExtensionContext): string | undefined {
 export function formatForwardedPermissionPrompt(
   request: ForwardedPermissionRequest,
 ): string {
-  const agentName = request.requesterAgentName || "unknown";
-  const sessionId = request.requesterSessionId || "unknown";
-  return [
-    `Subagent '${agentName}' requested permission.`,
-    `Session ID: ${sessionId}`,
-    "",
-    request.message,
-  ].join("\n");
+  return request.message;
 }
 
 export async function waitForForwardedPermissionApproval(
@@ -286,9 +279,10 @@ export async function processForwardedPermissionRequests(
         forwardedPermissionLogDetails,
       );
       try {
+        const subagentName = request.requesterAgentName || "unknown";
         decision = await deps.requestPermissionDecisionFromUi(
           ctx.ui,
-          "Permission Required (Subagent)",
+          `Permission Required — Subagent: ${subagentName}`,
           formatForwardedPermissionPrompt(request),
         );
       } catch (error) {
@@ -347,13 +341,14 @@ export async function processForwardedPermissionRequests(
 export async function confirmPermission(
   ctx: ExtensionContext,
   message: string,
+  title: string,
   deps: PermissionForwardingDeps,
   options?: RequestPermissionOptions,
 ): Promise<PermissionPromptDecision> {
   if (ctx.hasUI) {
     return deps.requestPermissionDecisionFromUi(
       ctx.ui,
-      "Permission Required",
+      title,
       message,
       options,
     );

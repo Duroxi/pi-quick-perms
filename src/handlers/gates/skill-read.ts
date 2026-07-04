@@ -45,7 +45,6 @@ export function describeSkillReadGate(
   const skillReadMessage = formatSkillPathAskPrompt(
     matchedSkill,
     path,
-    tcc.agentName ?? undefined,
   );
 
   return {

@@ -62,7 +62,6 @@ export function describePathGate(
       message: formatPathAskPrompt(
         tcc.toolName,
         filePath,
-        tcc.agentName ?? undefined,
       ),
       toolCallId: tcc.toolCallId,
       toolName: tcc.toolName,
@@ -97,8 +96,7 @@ export function formatPathDenyReason(
 export function formatPathAskPrompt(
   toolName: string,
   pathValue: string,
-  agentName?: string,
+  _agentName?: string,
 ): string {
-  const subject = agentName ? `Agent '${agentName}'` : "Current agent";
-  return `${subject} requested tool '${toolName}' for path '${pathValue}'. Allow this path access?`;
+  return `${toolName}(${pathValue})`;
 }

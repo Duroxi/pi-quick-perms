@@ -72,7 +72,6 @@ export function describeExternalDirectoryGate(
     tcc.toolName,
     externalDirectoryPath,
     tcc.cwd,
-    tcc.agentName ?? undefined,
   );
 
   const pattern = deriveApprovalPattern(normalizedExtPath);

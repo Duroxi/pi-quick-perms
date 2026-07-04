@@ -84,7 +84,6 @@ export async function describeBashExternalDirectoryGate(
     command,
     uncoveredPaths,
     tcc.cwd,
-    tcc.agentName ?? undefined,
   );
 
   const patterns = uncoveredPaths.map((p) => deriveApprovalPattern(p));
