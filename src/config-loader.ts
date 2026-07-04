@@ -21,6 +21,7 @@ export interface UnifiedPermissionConfig {
   debugLog?: boolean;
   permissionReviewLog?: boolean;
   yoloMode?: boolean;
+  allowEditsMode?: boolean;
 
   // Flat permission policy
   permission?: FlatPermissionConfig;
@@ -176,6 +177,9 @@ export function normalizeUnifiedConfig(raw: unknown): {
   const yoloMode = normalizeOptionalBoolean(record.yoloMode);
   if (yoloMode !== undefined) config.yoloMode = yoloMode;
 
+  const allowEditsMode = normalizeOptionalBoolean(record.allowEditsMode);
+  if (allowEditsMode !== undefined) config.allowEditsMode = allowEditsMode;
+
   // Flat permission policy
   const permission = normalizeFlatPermissionValue(record.permission);
   if (permission !== undefined) config.permission = permission;
@@ -196,7 +200,7 @@ export function mergeUnifiedConfigs(
   const merged: UnifiedPermissionConfig = {};
 
   // Scalars: override replaces base when defined
-  for (const key of ["debugLog", "permissionReviewLog", "yoloMode"] as const) {
+  for (const key of ["debugLog", "permissionReviewLog", "yoloMode", "allowEditsMode"] as const) {
     const value = override[key] ?? base[key];
     if (value !== undefined) {
       merged[key] = value;

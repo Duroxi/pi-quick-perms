@@ -151,6 +151,7 @@ export function refreshExtensionConfig(
     debugLog: runtimeConfig.debugLog,
     permissionReviewLog: runtimeConfig.permissionReviewLog,
     yoloMode: runtimeConfig.yoloMode,
+    allowEditsMode: runtimeConfig.allowEditsMode,
   });
 }
 
@@ -172,6 +173,7 @@ export function saveExtensionConfig(
     debugLog: normalized.debugLog,
     permissionReviewLog: normalized.permissionReviewLog,
     yoloMode: normalized.yoloMode,
+    allowEditsMode: normalized.allowEditsMode,
   };
 
   const tmpPath = `${globalPath}.tmp`;
@@ -203,6 +205,7 @@ export function saveExtensionConfig(
     debugLog: normalized.debugLog,
     permissionReviewLog: normalized.permissionReviewLog,
     yoloMode: normalized.yoloMode,
+    allowEditsMode: normalized.allowEditsMode,
   });
 }
 

@@ -10,6 +10,7 @@ export interface PermissionSystemExtensionConfig {
   debugLog: boolean;
   permissionReviewLog: boolean;
   yoloMode: boolean;
+  allowEditsMode: boolean;
   /** Additional directories to auto-allow for reads as Pi infrastructure. */
   piInfrastructureReadPaths?: string[];
 }
@@ -18,6 +19,7 @@ export const DEFAULT_EXTENSION_CONFIG: PermissionSystemExtensionConfig = {
   debugLog: false,
   permissionReviewLog: true,
   yoloMode: false,
+  allowEditsMode: false,
 };
 
 export function resolveExtensionRoot(moduleUrl = import.meta.url): string {
@@ -56,6 +58,7 @@ export function normalizePermissionSystemConfig(
     debugLog: record.debugLog === true,
     permissionReviewLog: record.permissionReviewLog !== false,
     yoloMode: record.yoloMode === true,
+    allowEditsMode: record.allowEditsMode === true,
   };
   if (piInfrastructureReadPaths !== undefined) {
     result.piInfrastructureReadPaths = piInfrastructureReadPaths;

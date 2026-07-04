@@ -53,6 +53,7 @@ function cloneDefaultConfig(): PermissionSystemExtensionConfig {
     debugLog: DEFAULT_EXTENSION_CONFIG.debugLog,
     permissionReviewLog: DEFAULT_EXTENSION_CONFIG.permissionReviewLog,
     yoloMode: DEFAULT_EXTENSION_CONFIG.yoloMode,
+    allowEditsMode: DEFAULT_EXTENSION_CONFIG.allowEditsMode,
   };
 }
 
@@ -79,6 +80,7 @@ function summarizeConfig(
 ): string {
   const knobs = [
     `yoloMode=${toOnOff(config.yoloMode)}`,
+    `allowEditsMode=${toOnOff(config.allowEditsMode)}`,
     `permissionReviewLog=${toOnOff(config.permissionReviewLog)}`,
     `debugLog=${toOnOff(config.debugLog)}`,
   ].join(", ");
@@ -96,6 +98,14 @@ function buildSettingItems(
       description:
         "Auto-approve ask-state permission checks, including subagent approval forwarding",
       currentValue: toOnOff(config.yoloMode),
+      values: ON_OFF,
+    },
+    {
+      id: "allowEditsMode",
+      label: "Allow edits mode",
+      description:
+        "Auto-approve ask-state permission checks for write and edit tools only",
+      currentValue: toOnOff(config.allowEditsMode),
       values: ON_OFF,
     },
     {
@@ -125,6 +135,8 @@ function applySetting(
   switch (id) {
     case "yoloMode":
       return { ...config, yoloMode: value === "on" };
+    case "allowEditsMode":
+      return { ...config, allowEditsMode: value === "on" };
     case "permissionReviewLog":
       return { ...config, permissionReviewLog: value === "on" };
     case "debugLog":
@@ -139,6 +151,7 @@ function syncSettingValues(
   config: PermissionSystemExtensionConfig,
 ): void {
   settingsList.updateValue("yoloMode", toOnOff(config.yoloMode));
+  settingsList.updateValue("allowEditsMode", toOnOff(config.allowEditsMode));
   settingsList.updateValue(
     "permissionReviewLog",
     toOnOff(config.permissionReviewLog),

@@ -29,6 +29,12 @@
       "type": "boolean",
       "default": false
     },
+    "allowEditsMode": {
+      "description": "Auto-approve ask-state permission checks for write and edit tools only.",
+      "markdownDescription": "Auto-approve `ask`-state permission checks for `write` and `edit` tools only. All other tools remain in ask mode.\n\n⚠️ **Use with caution** — this reduces confirmation prompts for file modifications while keeping other tools interactive.",
+      "type": "boolean",
+      "default": false
+    },
     "piInfrastructureReadPaths": {
       "description": "Additional directories to auto-allow for reads as Pi infrastructure, bypassing the external_directory gate. Supports ~ expansion. Directory prefixes only (no globs).",
       "markdownDescription": "Additional directories to auto-allow for reads as Pi infrastructure, bypassing the `external_directory` gate.\n\nThe extension auto-discovers the global node_modules root (walks up from the extension's install path; falls back to `npm root -g` from a dev checkout), `agentDir`, `agentDir/git`, and project-local `.pi/npm/` and `.pi/git/`. Add entries here for edge cases where auto-discovery is insufficient (e.g. custom `npmCommand` pointing to pnpm).\n\nSupports `~` expansion. Directory prefixes only — no glob patterns.",
