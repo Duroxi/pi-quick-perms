@@ -20,12 +20,13 @@ export function isAllowEditsModeEnabled(
  *   - toolName is a recognized surface (write / edit)
  */
 export function shouldAutoApproveForTool(
-  toolName: string | undefined,
+  surface: string | undefined,
   state: PermissionState,
   config: PermissionSystemExtensionConfig,
 ): boolean {
   if (!isAllowEditsModeEnabled(config)) return false;
   if (state !== "ask") return false;
-  if (!toolName) return false;
-  return AUTO_APPROVE_SURFACES.has(toolName.trim().toLowerCase());
+  if (!surface) return false;
+  const normalized = surface.trim().toLowerCase();
+  return normalized === "write" || normalized === "edit";
 }

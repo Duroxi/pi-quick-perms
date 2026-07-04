@@ -90,6 +90,7 @@ export async function runGateCheck(
       const decision = await deps.promptPermission({
         requestId: toolCallId,
         ...descriptor.promptDetails,
+        surface: descriptor.surface,
       });
       autoApproved = decision.autoApproved === true;
       return decision;

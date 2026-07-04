@@ -40,6 +40,7 @@ function makeDetails(
     source: "tool_call",
     agentName: "test-agent",
     message: "Allow read?",
+    surface: "read",
     toolName: "read",
     ...overrides,
   };
@@ -140,6 +141,7 @@ describe("PermissionPrompter", () => {
       const prompter = new PermissionPrompter(deps);
 
       const decision = await prompter.prompt(makeCtx(false), makeDetails({
+        surface: "write",
         toolName: "write",
       }));
 
@@ -158,6 +160,7 @@ describe("PermissionPrompter", () => {
       const prompter = new PermissionPrompter(deps);
 
       const decision = await prompter.prompt(makeCtx(false), makeDetails({
+        surface: "edit",
         toolName: "edit",
       }));
 
@@ -177,13 +180,14 @@ describe("PermissionPrompter", () => {
       mockConfirmPermission.mockResolvedValue({ approved: true, state: "approved" });
 
       await prompter.prompt(makeCtx(true), makeDetails({
+        surface: "bash",
         toolName: "bash",
       }));
 
       expect(mockConfirmPermission).toHaveBeenCalled();
     });
 
-    it("falls through when toolName is undefined", async () => {
+    it("falls through when surface is undefined", async () => {
       const deps = makeDeps({
         getConfig: () => ({ ...DEFAULT_EXTENSION_CONFIG, allowEditsMode: true }),
       });
@@ -191,6 +195,7 @@ describe("PermissionPrompter", () => {
       mockConfirmPermission.mockResolvedValue({ approved: true, state: "approved" });
 
       await prompter.prompt(makeCtx(true), makeDetails({
+        surface: undefined,
         // omit toolName entirely
       }));
 
@@ -205,7 +210,7 @@ describe("PermissionPrompter", () => {
       });
       const prompter = new PermissionPrompter(deps);
 
-      await prompter.prompt(makeCtx(false), makeDetails({ toolName: "write" }));
+      await prompter.prompt(makeCtx(false), makeDetails({ surface: "write", toolName: "write" }));
 
       expect(writeReviewLog).toHaveBeenCalledWith(
         "permission_request.auto_approved",
@@ -220,7 +225,7 @@ describe("PermissionPrompter", () => {
       const prompter = new PermissionPrompter(deps);
       mockConfirmPermission.mockResolvedValue({ approved: true, state: "approved" });
 
-      await prompter.prompt(makeCtx(true), makeDetails({ toolName: "write" }));
+      await prompter.prompt(makeCtx(true), makeDetails({ surface: "write", toolName: "write" }));
 
       expect(mockConfirmPermission).toHaveBeenCalled();
     });
@@ -232,7 +237,7 @@ describe("PermissionPrompter", () => {
       const prompter = new PermissionPrompter(deps);
       mockConfirmPermission.mockResolvedValue({ approved: true, state: "approved" });
 
-      await prompter.prompt(makeCtx(true), makeDetails({ toolName: "edit" }));
+      await prompter.prompt(makeCtx(true), makeDetails({ surface: "edit", toolName: "edit" }));
 
       expect(mockConfirmPermission).toHaveBeenCalled();
     });

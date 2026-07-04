@@ -28,6 +28,7 @@ export interface PromptPermissionDetails {
   source: PermissionReviewSource;
   agentName: string | null;
   message: string;
+  surface?: string;
   toolCallId?: string;
   toolName?: string;
   skillName?: string;
@@ -99,7 +100,7 @@ export class PermissionPrompter implements PermissionPrompterApi {
     // 2. Allow-edits mode: auto-approve ask-state checks for write/edit only.
     if (
       shouldAutoApproveForTool(
-        details.toolName,
+        details.surface,
         "ask",
         this.deps.getConfig(),
       )
