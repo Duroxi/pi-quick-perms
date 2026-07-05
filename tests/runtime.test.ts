@@ -229,7 +229,7 @@ describe("createExtensionRuntime", () => {
     const newConfig = {
       debugLog: true,
       permissionReviewLog: false,
-      yoloMode: false,
+      mode: "default",
     };
     runtime.config = newConfig;
     expect(runtime.config).toEqual(newConfig);
@@ -265,7 +265,7 @@ describe("createExtensionRuntime", () => {
     const updatedConfig = {
       debugLog: true,
       permissionReviewLog: false,
-      yoloMode: false,
+      mode: "default",
     };
     runtime.config = updatedConfig;
     // getConfig() should reflect the updated value
@@ -491,7 +491,7 @@ describe("refreshExtensionConfig", () => {
   it("updates runtime.config with normalized merged result", () => {
     const runtime = makeRuntime();
     mockLoadAndMergeConfigs.mockReturnValue({
-      merged: { debugLog: true, permissionReviewLog: false, yoloMode: false },
+      merged: { debugLog: true, permissionReviewLog: false, mode: "default" },
       issues: [],
     });
     refreshExtensionConfig(runtime);

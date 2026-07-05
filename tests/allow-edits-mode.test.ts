@@ -9,7 +9,7 @@ import {
 function makeConfig(
   allowEditsMode: boolean | undefined,
 ): PermissionSystemExtensionConfig {
-  return { allowEditsMode } as PermissionSystemExtensionConfig;
+  return { mode: allowEditsMode ? "allowEdits" : "default" } as PermissionSystemExtensionConfig;
 }
 
 describe("isAllowEditsModeEnabled", () => {

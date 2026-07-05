@@ -51,7 +51,7 @@ function makeDeps(
   overrides?: Partial<PermissionPrompterDeps>,
 ): PermissionPrompterDeps {
   return {
-    getConfig: () => ({ ...DEFAULT_EXTENSION_CONFIG, yoloMode: false }),
+    getConfig: () => ({ ...DEFAULT_EXTENSION_CONFIG, mode: "default" }),
     writeReviewLog: vi.fn(),
     subagentSessionsDir: "/sessions/subagents",
     forwardingDir: "/sessions/permission-forwarding",
@@ -72,9 +72,9 @@ describe("PermissionPrompter", () => {
   // ── Yolo-mode auto-approve ───────────────────────────────────────────────
 
   describe("yolo-mode auto-approve", () => {
-    it("returns approved without calling confirmPermission when yoloMode is true", async () => {
+    it("returns approved without calling confirmPermission when mode is yolo", async () => {
       const deps = makeDeps({
-        getConfig: () => ({ ...DEFAULT_EXTENSION_CONFIG, yoloMode: true }),
+        getConfig: () => ({ ...DEFAULT_EXTENSION_CONFIG, mode: "yolo" }),
       });
       const prompter = new PermissionPrompter(deps);
 
@@ -91,7 +91,7 @@ describe("PermissionPrompter", () => {
     it("logs permission_request.auto_approved in yolo mode", async () => {
       const writeReviewLog = vi.fn();
       const deps = makeDeps({
-        getConfig: () => ({ ...DEFAULT_EXTENSION_CONFIG, yoloMode: true }),
+        getConfig: () => ({ ...DEFAULT_EXTENSION_CONFIG, mode: "yolo" }),
         writeReviewLog,
       });
       const prompter = new PermissionPrompter(deps);
@@ -107,7 +107,7 @@ describe("PermissionPrompter", () => {
     it("does not log permission_request.waiting in yolo mode", async () => {
       const writeReviewLog = vi.fn();
       const deps = makeDeps({
-        getConfig: () => ({ ...DEFAULT_EXTENSION_CONFIG, yoloMode: true }),
+        getConfig: () => ({ ...DEFAULT_EXTENSION_CONFIG, mode: "yolo" }),
         writeReviewLog,
       });
       const prompter = new PermissionPrompter(deps);
@@ -120,9 +120,9 @@ describe("PermissionPrompter", () => {
       );
     });
 
-    it("does not call confirmPermission with yoloMode even when ctx has UI", async () => {
+    it("does not call confirmPermission with yolo mode even when ctx has UI", async () => {
       const deps = makeDeps({
-        getConfig: () => ({ ...DEFAULT_EXTENSION_CONFIG, yoloMode: true }),
+        getConfig: () => ({ ...DEFAULT_EXTENSION_CONFIG, mode: "yolo" }),
       });
       const prompter = new PermissionPrompter(deps);
 
@@ -134,10 +134,10 @@ describe("PermissionPrompter", () => {
 
   // ── Allow-edits mode auto-approve ──────────────────────────────────────
 
-  describe("allow-edits mode auto-approve", () => {
-    it("returns approved for write without calling confirmPermission when allowEditsMode is true", async () => {
+  describe("allowEdits mode auto-approve", () => {
+    it("returns approved for write without calling confirmPermission when mode is allowEdits", async () => {
       const deps = makeDeps({
-        getConfig: () => ({ ...DEFAULT_EXTENSION_CONFIG, allowEditsMode: true }),
+        getConfig: () => ({ ...DEFAULT_EXTENSION_CONFIG, mode: "allowEdits" }),
       });
       const prompter = new PermissionPrompter(deps);
 
@@ -154,9 +154,9 @@ describe("PermissionPrompter", () => {
       expect(mockConfirmPermission).not.toHaveBeenCalled();
     });
 
-    it("returns approved for edit without calling confirmPermission when allowEditsMode is true", async () => {
+    it("returns approved for edit without calling confirmPermission when mode is allowEdits", async () => {
       const deps = makeDeps({
-        getConfig: () => ({ ...DEFAULT_EXTENSION_CONFIG, allowEditsMode: true }),
+        getConfig: () => ({ ...DEFAULT_EXTENSION_CONFIG, mode: "allowEdits" }),
       });
       const prompter = new PermissionPrompter(deps);
 
@@ -175,7 +175,7 @@ describe("PermissionPrompter", () => {
 
     it("falls through to confirmPermission for non-write/edit tools", async () => {
       const deps = makeDeps({
-        getConfig: () => ({ ...DEFAULT_EXTENSION_CONFIG, allowEditsMode: true }),
+        getConfig: () => ({ ...DEFAULT_EXTENSION_CONFIG, mode: "allowEdits" }),
       });
       const prompter = new PermissionPrompter(deps);
       mockConfirmPermission.mockResolvedValue({ approved: true, state: "approved" });
@@ -190,7 +190,7 @@ describe("PermissionPrompter", () => {
 
     it("falls through when surface is undefined", async () => {
       const deps = makeDeps({
-        getConfig: () => ({ ...DEFAULT_EXTENSION_CONFIG, allowEditsMode: true }),
+        getConfig: () => ({ ...DEFAULT_EXTENSION_CONFIG, mode: "allowEdits" }),
       });
       const prompter = new PermissionPrompter(deps);
       mockConfirmPermission.mockResolvedValue({ approved: true, state: "approved" });
@@ -206,7 +206,7 @@ describe("PermissionPrompter", () => {
     it("logs permission_request.auto_approved for write", async () => {
       const writeReviewLog = vi.fn();
       const deps = makeDeps({
-        getConfig: () => ({ ...DEFAULT_EXTENSION_CONFIG, allowEditsMode: true }),
+        getConfig: () => ({ ...DEFAULT_EXTENSION_CONFIG, mode: "allowEdits" }),
         writeReviewLog,
       });
       const prompter = new PermissionPrompter(deps);
@@ -219,9 +219,9 @@ describe("PermissionPrompter", () => {
       );
     });
 
-    it("falls through to confirmPermission for write when allowEditsMode is false", async () => {
+    it("falls through to confirmPermission for write when mode is default", async () => {
       const deps = makeDeps({
-        getConfig: () => ({ ...DEFAULT_EXTENSION_CONFIG, allowEditsMode: false }),
+        getConfig: () => ({ ...DEFAULT_EXTENSION_CONFIG, mode: "default" }),
       });
       const prompter = new PermissionPrompter(deps);
       mockConfirmPermission.mockResolvedValue({ approved: true, state: "approved" });
@@ -231,9 +231,9 @@ describe("PermissionPrompter", () => {
       expect(mockConfirmPermission).toHaveBeenCalled();
     });
 
-    it("falls through to confirmPermission for edit when allowEditsMode is false", async () => {
+    it("falls through to confirmPermission for edit when mode is default", async () => {
       const deps = makeDeps({
-        getConfig: () => ({ ...DEFAULT_EXTENSION_CONFIG, allowEditsMode: false }),
+        getConfig: () => ({ ...DEFAULT_EXTENSION_CONFIG, mode: "default" }),
       });
       const prompter = new PermissionPrompter(deps);
       mockConfirmPermission.mockResolvedValue({ approved: true, state: "approved" });
@@ -245,7 +245,7 @@ describe("PermissionPrompter", () => {
 
     it("does not auto-approve external_directory gate even when toolName is write", async () => {
       const deps = makeDeps({
-        getConfig: () => ({ ...DEFAULT_EXTENSION_CONFIG, allowEditsMode: true }),
+        getConfig: () => ({ ...DEFAULT_EXTENSION_CONFIG, mode: "allowEdits" }),
       });
       const prompter = new PermissionPrompter(deps);
       mockConfirmPermission.mockResolvedValue({ approved: true, state: "approved" });
@@ -261,7 +261,7 @@ describe("PermissionPrompter", () => {
 
     it("does not auto-approve path gate even when toolName is write", async () => {
       const deps = makeDeps({
-        getConfig: () => ({ ...DEFAULT_EXTENSION_CONFIG, allowEditsMode: true }),
+        getConfig: () => ({ ...DEFAULT_EXTENSION_CONFIG, mode: "allowEdits" }),
       });
       const prompter = new PermissionPrompter(deps);
       mockConfirmPermission.mockResolvedValue({ approved: true, state: "approved" });
@@ -275,9 +275,9 @@ describe("PermissionPrompter", () => {
       expect(mockConfirmPermission).toHaveBeenCalled();
     });
 
-    it("does not auto-approve external write even when allowEditsMode is true", async () => {
+    it("does not auto-approve external write even when mode is allowEdits", async () => {
       const deps = makeDeps({
-        getConfig: () => ({ ...DEFAULT_EXTENSION_CONFIG, allowEditsMode: true }),
+        getConfig: () => ({ ...DEFAULT_EXTENSION_CONFIG, mode: "allowEdits" }),
       });
       const prompter = new PermissionPrompter(deps);
       mockConfirmPermission.mockResolvedValue({ approved: true, state: "approved" });
@@ -292,9 +292,9 @@ describe("PermissionPrompter", () => {
       expect(mockConfirmPermission).toHaveBeenCalled();
     });
 
-    it("does not auto-approve external edit even when allowEditsMode is true", async () => {
+    it("does not auto-approve external edit even when mode is allowEdits", async () => {
       const deps = makeDeps({
-        getConfig: () => ({ ...DEFAULT_EXTENSION_CONFIG, allowEditsMode: true }),
+        getConfig: () => ({ ...DEFAULT_EXTENSION_CONFIG, mode: "allowEdits" }),
       });
       const prompter = new PermissionPrompter(deps);
       mockConfirmPermission.mockResolvedValue({ approved: true, state: "approved" });
@@ -309,9 +309,9 @@ describe("PermissionPrompter", () => {
       expect(mockConfirmPermission).toHaveBeenCalled();
     });
 
-    it("yoloMode takes precedence over allowEditsMode for non-write/edit tools", async () => {
+    it("yolo mode takes precedence over allowEdits mode for non-write/edit tools", async () => {
       const deps = makeDeps({
-        getConfig: () => ({ ...DEFAULT_EXTENSION_CONFIG, yoloMode: true, allowEditsMode: true }),
+        getConfig: () => ({ ...DEFAULT_EXTENSION_CONFIG, mode: "yolo" }),
       });
       const prompter = new PermissionPrompter(deps);
 
@@ -328,9 +328,9 @@ describe("PermissionPrompter", () => {
       expect(mockConfirmPermission).not.toHaveBeenCalled();
     });
 
-    it("yoloMode takes precedence over allowEditsMode for write/edit tools", async () => {
+    it("yolo mode takes precedence over allowEdits mode for write/edit tools", async () => {
       const deps = makeDeps({
-        getConfig: () => ({ ...DEFAULT_EXTENSION_CONFIG, yoloMode: true, allowEditsMode: true }),
+        getConfig: () => ({ ...DEFAULT_EXTENSION_CONFIG, mode: "yolo" }),
       });
       const prompter = new PermissionPrompter(deps);
 
@@ -347,9 +347,9 @@ describe("PermissionPrompter", () => {
       expect(mockConfirmPermission).not.toHaveBeenCalled();
     });
 
-    it("does not auto-approve non-write/edit surfaces even when allowEditsMode is on", async () => {
+    it("does not auto-approve non-write/edit surfaces even when mode is allowEdits", async () => {
       const deps = makeDeps({
-        getConfig: () => ({ ...DEFAULT_EXTENSION_CONFIG, allowEditsMode: true }),
+        getConfig: () => ({ ...DEFAULT_EXTENSION_CONFIG, mode: "allowEdits" }),
       });
       const prompter = new PermissionPrompter(deps);
       mockConfirmPermission.mockResolvedValue({ approved: false, state: "denied" });
@@ -365,7 +365,7 @@ describe("PermissionPrompter", () => {
 
     it("auto-approve still works when hasUI=true (no dialog shown)", async () => {
       const deps = makeDeps({
-        getConfig: () => ({ ...DEFAULT_EXTENSION_CONFIG, allowEditsMode: true }),
+        getConfig: () => ({ ...DEFAULT_EXTENSION_CONFIG, mode: "allowEdits" }),
       });
       const prompter = new PermissionPrompter(deps);
 

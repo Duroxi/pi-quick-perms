@@ -131,7 +131,7 @@ test("permission-system command handlers manage config summary, persistence, and
   let config: PermissionSystemExtensionConfig = {
     debugLog: true,
     permissionReviewLog: false,
-    yoloMode: true,
+    mode: "yolo",
   };
 
   try {
@@ -191,7 +191,7 @@ test("permission-system command handlers manage config summary, persistence, and
     const infoCtx = createCommandContext(true);
     await definition?.handler("show", infoCtx.ctx);
     assert.ok(
-      lastNotification(infoCtx.notifications).message.includes("yoloMode=on"),
+      lastNotification(infoCtx.notifications).message.includes("mode=yolo"),
     );
     assert.ok(
       lastNotification(infoCtx.notifications).message.includes("debugLog=on"),
@@ -296,7 +296,7 @@ test("show output includes rule origins when getComposedRules is provided", asyn
 });
 
 test("show output omits rule summary when getComposedRules is not provided", async () => {
-  const config = { ...DEFAULT_EXTENSION_CONFIG, yoloMode: true };
+  const config = { ...DEFAULT_EXTENSION_CONFIG, mode: "yolo" };
 
   const controller = {
     getConfig: () => config,
@@ -323,7 +323,7 @@ test("show output omits rule summary when getComposedRules is not provided", asy
   const msg = lastNotification(ctx.notifications).message;
 
   // Config knobs still present.
-  assert.ok(msg.includes("yoloMode=on"), `expected yoloMode=on in: ${msg}`);
+  assert.ok(msg.includes("mode=yolo"), `expected mode=yolo in: ${msg}`);
   // No rule annotation lines.
   assert.ok(!msg.includes("(global)"), `unexpected '(global)' in: ${msg}`);
 });

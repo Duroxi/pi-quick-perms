@@ -10,7 +10,7 @@ export interface AskPermissionResolutionOptions {
 export function isYoloModeEnabled(
   config: PermissionSystemExtensionConfig,
 ): boolean {
-  return config.yoloMode === true;
+  return config.mode === "yolo";
 }
 
 export function shouldAutoApprovePermissionState(

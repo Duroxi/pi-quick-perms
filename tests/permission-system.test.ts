@@ -248,21 +248,21 @@ test("Yolo mode only auto-approves ask-state permissions", () => {
   assert.equal(
     shouldAutoApprovePermissionState("ask", {
       ...DEFAULT_EXTENSION_CONFIG,
-      yoloMode: true,
+      mode: "yolo",
     }),
     true,
   );
   assert.equal(
     shouldAutoApprovePermissionState("deny", {
       ...DEFAULT_EXTENSION_CONFIG,
-      yoloMode: true,
+      mode: "yolo",
     }),
     false,
   );
   assert.equal(
     shouldAutoApprovePermissionState("allow", {
       ...DEFAULT_EXTENSION_CONFIG,
-      yoloMode: true,
+      mode: "yolo",
     }),
     false,
   );
@@ -279,7 +279,7 @@ test("Yolo mode resolves ask permissions without UI or delegation forwarding", (
   );
   assert.equal(
     canResolveAskPermissionRequest({
-      config: { ...DEFAULT_EXTENSION_CONFIG, yoloMode: true },
+      config: { ...DEFAULT_EXTENSION_CONFIG, mode: "yolo" },
       hasUI: false,
       isSubagent: false,
     }),
@@ -298,7 +298,7 @@ test("Yolo mode resolves ask permissions without UI or delegation forwarding", (
 test("Permission-system status is only exposed when yolo mode is enabled", () => {
   assert.equal(getPermissionSystemStatus(DEFAULT_EXTENSION_CONFIG), undefined);
   assert.equal(
-    getPermissionSystemStatus({ ...DEFAULT_EXTENSION_CONFIG, yoloMode: true }),
+    getPermissionSystemStatus({ ...DEFAULT_EXTENSION_CONFIG, mode: "yolo" }),
     "yolo",
   );
 });
@@ -1101,7 +1101,7 @@ test("Yolo mode bypasses delegated ask routing when no parent forwarding target 
   assert.equal(targetSessionId, null);
   assert.equal(
     canResolveAskPermissionRequest({
-      config: { ...DEFAULT_EXTENSION_CONFIG, yoloMode: true },
+      config: { ...DEFAULT_EXTENSION_CONFIG, mode: "yolo" },
       hasUI: false,
       isSubagent: true,
     }),
@@ -1110,7 +1110,7 @@ test("Yolo mode bypasses delegated ask routing when no parent forwarding target 
   assert.equal(
     shouldAutoApprovePermissionState("ask", {
       ...DEFAULT_EXTENSION_CONFIG,
-      yoloMode: true,
+      mode: "yolo",
     }),
     true,
   );

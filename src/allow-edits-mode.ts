@@ -7,7 +7,7 @@ const AUTO_APPROVE_SURFACES = new Set(["write", "edit"]);
 export function isAllowEditsModeEnabled(
   config: PermissionSystemExtensionConfig,
 ): boolean {
-  return config.allowEditsMode === true;
+  return config.mode === "allowEdits";
 }
 
 /**

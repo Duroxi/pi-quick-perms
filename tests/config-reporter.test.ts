@@ -115,7 +115,7 @@ test("config.resolved entry appears in review log via logger", () => {
       getConfig: () => ({
         debugLog: false,
         permissionReviewLog: true,
-        yoloMode: false,
+        mode: "default",
       }),
       debugLogPath,
       reviewLogPath,

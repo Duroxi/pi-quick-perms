@@ -12,7 +12,7 @@ afterEach(() => {
 function makeConfig(
   yoloMode: boolean | undefined,
 ): PermissionSystemExtensionConfig {
-  return { yoloMode } as PermissionSystemExtensionConfig;
+  return { mode: yoloMode ? "yolo" : "default" } as PermissionSystemExtensionConfig;
 }
 
 describe("shouldAutoApprovePermissionState", () => {

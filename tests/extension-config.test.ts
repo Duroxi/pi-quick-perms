@@ -79,43 +79,41 @@ describe("normalizePermissionSystemConfig", () => {
     const result = normalizePermissionSystemConfig({
       debugLog: true,
       permissionReviewLog: false,
-      yoloMode: true,
+      mode: "yolo",
     });
     expect(result).toEqual({
       debugLog: true,
       permissionReviewLog: false,
-      yoloMode: true,
-      allowEditsMode: false,
+      mode: "yolo",
     });
   });
 
   it("defaults debugLog to false when missing", () => {
     const result = normalizePermissionSystemConfig({});
     expect(result.debugLog).toBe(false);
-    expect(result.allowEditsMode).toBe(false);
+    expect(result.mode).toBe("default");
   });
 
   it("defaults permissionReviewLog to true when missing", () => {
     const result = normalizePermissionSystemConfig({});
     expect(result.permissionReviewLog).toBe(true);
-    expect(result.allowEditsMode).toBe(false);
+    expect(result.mode).toBe("default");
   });
 
-  it("defaults yoloMode to false when missing", () => {
+  it("defaults mode to 'default' when missing", () => {
     const result = normalizePermissionSystemConfig({});
-    expect(result.yoloMode).toBe(false);
-    expect(result.allowEditsMode).toBe(false);
+    expect(result.mode).toBe("default");
   });
 
   it("coerces non-boolean values to their defaults", () => {
     const result = normalizePermissionSystemConfig({
       debugLog: "yes",
       permissionReviewLog: 1,
-      yoloMode: null,
+      mode: null,
     });
     expect(result.debugLog).toBe(false);
     expect(result.permissionReviewLog).toBe(true);
-    expect(result.yoloMode).toBe(false);
+    expect(result.mode).toBe("default");
   });
 
   it("handles null/undefined input gracefully", () => {
@@ -123,8 +121,26 @@ describe("normalizePermissionSystemConfig", () => {
     expect(result).toEqual({
       debugLog: false,
       permissionReviewLog: true,
-      yoloMode: false,
-      allowEditsMode: false,
+      mode: "default",
     });
+  });
+
+  it("resolves deprecated yoloMode: true to mode: 'yolo'", () => {
+    const result = normalizePermissionSystemConfig({ yoloMode: true });
+    expect(result.mode).toBe("yolo");
+  });
+
+  it("resolves deprecated allowEditsMode: true to mode: 'allowEdits'", () => {
+    const result = normalizePermissionSystemConfig({ allowEditsMode: true });
+    expect(result.mode).toBe("allowEdits");
+  });
+
+  it("new mode field takes precedence over deprecated booleans", () => {
+    const result = normalizePermissionSystemConfig({
+      mode: "default",
+      yoloMode: true,
+      allowEditsMode: true,
+    });
+    expect(result.mode).toBe("default");
   });
 });

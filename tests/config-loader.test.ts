@@ -7,6 +7,7 @@ import {
   loadAndMergeConfigs,
   loadUnifiedConfig,
   mergeUnifiedConfigs,
+  resolveMode,
 } from "../src/config-loader";
 
 describe("loadUnifiedConfig", () => {
@@ -456,5 +457,86 @@ describe("loadAndMergeConfigs", () => {
     // merged is UnifiedPermissionConfig, not yet normalized to PermissionSystemExtensionConfig
     // allowEditsMode is undefined at this stage; normalizePermissionSystemConfig will default it to false
     expect(result.merged.allowEditsMode).toBeUndefined();
+  });
+
+  // ── mode field ──────────────────────────────────────────────────────────
+
+  it("preserves mode through global config", () => {
+    writeGlobal({ mode: "yolo" });
+
+    const result = loadAndMergeConfigs(agentDir, cwd, extensionRoot);
+    expect(result.issues).toEqual([]);
+    expect(result.merged.mode).toBe("yolo");
+  });
+
+  it("preserves mode through project config", () => {
+    writeProject({ mode: "allowEdits" });
+
+    const result = loadAndMergeConfigs(agentDir, cwd, extensionRoot);
+    expect(result.issues).toEqual([]);
+    expect(result.merged.mode).toBe("allowEdits");
+  });
+
+  it("project mode overrides global mode", () => {
+    writeGlobal({ mode: "yolo" });
+    writeProject({ mode: "default" });
+
+    const result = loadAndMergeConfigs(agentDir, cwd, extensionRoot);
+    expect(result.merged.mode).toBe("default");
+  });
+
+  it("mode field takes precedence over deprecated yoloMode boolean", () => {
+    writeGlobal({ yoloMode: true });
+    writeProject({ mode: "default" });
+
+    const result = loadAndMergeConfigs(agentDir, cwd, extensionRoot);
+    // At the UnifiedPermissionConfig level, both fields are present.
+    // resolveMode (in normalizePermissionSystemConfig) uses mode first.
+    expect(result.merged.mode).toBe("default");
+    expect(result.merged.yoloMode).toBe(true);
+  });
+});
+
+// ── resolveMode ───────────────────────────────────────────────────────────
+
+describe("resolveMode", () => {
+  it("returns 'default' for empty config", () => {
+    expect(resolveMode({})).toBe("default");
+  });
+
+  it("returns 'yolo' when mode is 'yolo'", () => {
+    expect(resolveMode({ mode: "yolo" })).toBe("yolo");
+  });
+
+  it("returns 'allowEdits' when mode is 'allowEdits'", () => {
+    expect(resolveMode({ mode: "allowEdits" })).toBe("allowEdits");
+  });
+
+  it("returns 'default' when mode is 'default'", () => {
+    expect(resolveMode({ mode: "default" })).toBe("default");
+  });
+
+  it("maps deprecated yoloMode: true to 'yolo'", () => {
+    expect(resolveMode({ yoloMode: true })).toBe("yolo");
+  });
+
+  it("maps deprecated allowEditsMode: true to 'allowEdits'", () => {
+    expect(resolveMode({ allowEditsMode: true })).toBe("allowEdits");
+  });
+
+  it("mode field takes precedence over deprecated yoloMode", () => {
+    expect(resolveMode({ mode: "default", yoloMode: true })).toBe("default");
+  });
+
+  it("mode field takes precedence over deprecated allowEditsMode", () => {
+    expect(resolveMode({ mode: "yolo", allowEditsMode: true })).toBe("yolo");
+  });
+
+  it("yoloMode takes precedence over allowEditsMode when both deprecated", () => {
+    expect(resolveMode({ yoloMode: true, allowEditsMode: true })).toBe("yolo");
+  });
+
+  it("deprecated false values do not map to mode", () => {
+    expect(resolveMode({ yoloMode: false, allowEditsMode: false })).toBe("default");
   });
 });

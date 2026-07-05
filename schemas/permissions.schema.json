@@ -23,15 +23,22 @@
       "type": "boolean",
       "default": true
     },
+    "mode": {
+      "description": "Permission mode: default (interactive), allowEdits (auto-approve write/edit), yolo (auto-approve all).",
+      "markdownDescription": "Permission mode controlling auto-approval behavior.\n\n- `default` — all `ask`-state checks prompt the user interactively.\n- `allowEdits` — auto-approve `ask`-state checks for `write` and `edit` tools only. All other tools remain interactive.\n- `yolo` — auto-approve all `ask`-state checks, including subagent approval forwarding.\n\n⚠️ **Use with caution** — `yolo` disables all interactive confirmation prompts; `allowEdits` reduces prompts for file modifications.",
+      "type": "string",
+      "enum": ["default", "allowEdits", "yolo"],
+      "default": "default"
+    },
     "yoloMode": {
-      "description": "Auto-approve ask-state permission checks, including subagent approval forwarding.",
-      "markdownDescription": "Auto-approve `ask`-state permission checks, including subagent approval forwarding.\n\n⚠️ **Use with caution** — this disables all interactive confirmation prompts.",
+      "description": "Deprecated: use mode=\"yolo\" instead. Auto-approve ask-state permission checks, including subagent approval forwarding.",
+      "markdownDescription": "**Deprecated** — use `\"mode\": \"yolo\"` instead.\n\nAuto-approve `ask`-state permission checks, including subagent approval forwarding.",
       "type": "boolean",
       "default": false
     },
     "allowEditsMode": {
-      "description": "Auto-approve ask-state permission checks for write and edit tools only.",
-      "markdownDescription": "Auto-approve `ask`-state permission checks for `write` and `edit` tools only. All other tools remain in ask mode.\n\n⚠️ **Use with caution** — this reduces confirmation prompts for file modifications while keeping other tools interactive.",
+      "description": "Deprecated: use mode=\"allowEdits\" instead. Auto-approve ask-state permission checks for write and edit tools only.",
+      "markdownDescription": "**Deprecated** — use `\"mode\": \"allowEdits\"` instead.\n\nAuto-approve `ask`-state permission checks for `write` and `edit` tools only.",
       "type": "boolean",
       "default": false
     },

@@ -16,11 +16,19 @@ import type { FlatPermissionConfig } from "./types";
  * Unified config shape combining runtime knobs and flat permission policy.
  * All fields are optional so partial configs (project-only, global-only) work.
  */
+/** Valid values for the `mode` config field. */
+export type PermissionMode = "default" | "allowEdits" | "yolo";
+
+const VALID_MODES = new Set<string>(["default", "allowEdits", "yolo"]);
+
 export interface UnifiedPermissionConfig {
   // Runtime knobs
   debugLog?: boolean;
   permissionReviewLog?: boolean;
+  mode?: PermissionMode;
+  /** @deprecated Use mode="yolo" instead. */
   yoloMode?: boolean;
+  /** @deprecated Use mode="allowEdits" instead. */
   allowEditsMode?: boolean;
 
   // Flat permission policy
@@ -111,6 +119,29 @@ function normalizeOptionalBoolean(value: unknown): boolean | undefined {
   return undefined;
 }
 
+function normalizeMode(value: unknown): PermissionMode | undefined {
+  if (typeof value === "string" && VALID_MODES.has(value)) {
+    return value as PermissionMode;
+  }
+  return undefined;
+}
+
+/**
+ * Resolve the effective mode from a merged UnifiedPermissionConfig.
+ *
+ * Precedence:
+ *   1. Explicit `mode` field (new format)
+ *   2. `yoloMode: true` (deprecated) → "yolo"
+ *   3. `allowEditsMode: true` (deprecated) → "allowEdits"
+ *   4. Default: "default"
+ */
+export function resolveMode(config: UnifiedPermissionConfig): PermissionMode {
+  if (config.mode) return config.mode;
+  if (config.yoloMode === true) return "yolo";
+  if (config.allowEditsMode === true) return "allowEdits";
+  return "default";
+}
+
 /**
  * Normalize a raw `permission` value from parsed JSON into a FlatPermissionConfig.
  * Drops non-object top-level values, invalid PermissionState strings, and
@@ -174,6 +205,10 @@ export function normalizeUnifiedConfig(raw: unknown): {
   if (permissionReviewLog !== undefined)
     config.permissionReviewLog = permissionReviewLog;
 
+  const mode = normalizeMode(record.mode);
+  if (mode !== undefined) config.mode = mode;
+
+  // Deprecated boolean fields — still parsed for backward compat
   const yoloMode = normalizeOptionalBoolean(record.yoloMode);
   if (yoloMode !== undefined) config.yoloMode = yoloMode;
 
@@ -190,8 +225,8 @@ export function normalizeUnifiedConfig(raw: unknown): {
 /**
  * Merge two unified configs.
  * - `permission` is deep-shallow merged (surface-level object maps are shallow-merged).
- * - Scalar fields (debugLog, permissionReviewLog, yoloMode) are replaced when
- *   present in the override.
+ * - Scalar fields (debugLog, permissionReviewLog, mode, and deprecated yoloMode/allowEditsMode)
+ *   are replaced when present in the override.
  */
 export function mergeUnifiedConfigs(
   base: UnifiedPermissionConfig,
@@ -200,7 +235,7 @@ export function mergeUnifiedConfigs(
   const merged: UnifiedPermissionConfig = {};
 
   // Scalars: override replaces base when defined
-  for (const key of ["debugLog", "permissionReviewLog", "yoloMode", "allowEditsMode"] as const) {
+  for (const key of ["debugLog", "permissionReviewLog", "mode", "yoloMode", "allowEditsMode"] as const) {
     const value = override[key] ?? base[key];
     if (value !== undefined) {
       merged[key] = value;
