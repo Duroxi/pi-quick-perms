@@ -33,6 +33,11 @@ function makeCtx(hasUI: boolean): ExtensionContext {
   } as unknown as ExtensionContext;
 }
 
+/** Returns a path that is guaranteed to be outside the cwd (/project) on the current platform. */
+function externalPath(): string {
+  return process.platform === "win32" ? "C:\\tmp\\external-file.txt" : "/tmp/external-file.txt";
+}
+
 function makeDetails(
   overrides?: Partial<PromptPermissionDetails>,
 ): PromptPermissionDetails {
@@ -285,8 +290,8 @@ describe("PermissionPrompter", () => {
       await prompter.prompt(makeCtx(true), makeDetails({
         surface: "write",
         toolName: "write",
-        path: "C:\\tmp\\external-file.txt",
-        message: "write(C:\\tmp\\external-file.txt (1 lines, 10 characters))",
+        path: externalPath(),
+        message: `write(${externalPath()} (1 lines, 10 characters))`,
       }));
 
       expect(mockConfirmPermission).toHaveBeenCalled();
@@ -302,8 +307,8 @@ describe("PermissionPrompter", () => {
       await prompter.prompt(makeCtx(true), makeDetails({
         surface: "edit",
         toolName: "edit",
-        path: "C:\\tmp\\external-file.txt",
-        message: "edit(C:\\tmp\\external-file.txt (1 replacement: ...))",
+        path: externalPath(),
+        message: `edit(${externalPath()} (1 replacement: ...))`,
       }));
 
       expect(mockConfirmPermission).toHaveBeenCalled();
