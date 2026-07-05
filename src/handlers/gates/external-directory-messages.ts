@@ -36,6 +36,13 @@ export function formatExternalDirectoryUserDeniedReason(
   return `User denied external directory access for tool '${toolName}' path '${pathValue}'.${reasonSuffix} ${formatExternalDirectoryHardStopHint()}`;
 }
 
+/**
+ * Formats the ask prompt for bash external directory access.
+ *
+ * The `externalPaths`, `cwd`, and `agentName` parameters are retained for
+ * backward compatibility but are no longer included in the prompt text —
+ * only the command is shown.
+ */
 export function formatBashExternalDirectoryAskPrompt(
   command: string,
   _externalPaths: string[],

@@ -347,7 +347,7 @@ describe("PermissionPrompter", () => {
       expect(mockConfirmPermission).not.toHaveBeenCalled();
     });
 
-    it("does not auto-approve when allowEditsMode is on but surface is not write/edit (deny-state boundary)", async () => {
+    it("does not auto-approve non-write/edit surfaces even when allowEditsMode is on", async () => {
       const deps = makeDeps({
         getConfig: () => ({ ...DEFAULT_EXTENSION_CONFIG, allowEditsMode: true }),
       });
@@ -361,6 +361,25 @@ describe("PermissionPrompter", () => {
       }));
 
       expect(mockConfirmPermission).toHaveBeenCalled();
+    });
+
+    it("auto-approve still works when hasUI=true (no dialog shown)", async () => {
+      const deps = makeDeps({
+        getConfig: () => ({ ...DEFAULT_EXTENSION_CONFIG, allowEditsMode: true }),
+      });
+      const prompter = new PermissionPrompter(deps);
+
+      const decision = await prompter.prompt(makeCtx(true), makeDetails({
+        surface: "write",
+        toolName: "write",
+      }));
+
+      expect(decision).toEqual({
+        approved: true,
+        state: "approved",
+        autoApproved: true,
+      });
+      expect(mockConfirmPermission).not.toHaveBeenCalled();
     });
   });
 
