@@ -263,84 +263,43 @@ describe("extractExternalPathsFromBashCommand", () => {
 
   describe("safe system paths are filtered", () => {
     test("does not flag /dev/null in stderr redirect", async () => {
-      if (process.platform === "win32") {
-        // On Windows, /dev/null normalizes to C:\dev\null which is not in SAFE_SYSTEM_PATHS.
-        const result = await extractExternalPathsFromBashCommand(
-          "command 2>/dev/null",
-          cwd,
-        );
-        expect(result).toContain(toPlatformPath("/dev/null"));
-      } else {
-        const result = await extractExternalPathsFromBashCommand(
-          "command 2>/dev/null",
-          cwd,
-        );
-        expect(result).toHaveLength(0);
-      }
+      const result = await extractExternalPathsFromBashCommand(
+        "command 2>/dev/null",
+        cwd,
+      );
+      expect(result).toHaveLength(0);
     });
 
     test("does not flag /dev/null as a redirect target", async () => {
-      if (process.platform === "win32") {
-        const result = await extractExternalPathsFromBashCommand(
-          "echo hello > /dev/null",
-          cwd,
-        );
-        expect(result).toContain(toPlatformPath("/dev/null"));
-      } else {
-        const result = await extractExternalPathsFromBashCommand(
-          "echo hello > /dev/null",
-          cwd,
-        );
-        expect(result).toHaveLength(0);
-      }
+      const result = await extractExternalPathsFromBashCommand(
+        "echo hello > /dev/null",
+        cwd,
+      );
+      expect(result).toHaveLength(0);
     });
 
     test("does not flag /dev/stdin", async () => {
-      if (process.platform === "win32") {
-        const result = await extractExternalPathsFromBashCommand(
-          "cat /dev/stdin",
-          cwd,
-        );
-        expect(result).toContain(toPlatformPath("/dev/stdin"));
-      } else {
-        const result = await extractExternalPathsFromBashCommand(
-          "cat /dev/stdin",
-          cwd,
-        );
-        expect(result).toHaveLength(0);
-      }
+      const result = await extractExternalPathsFromBashCommand(
+        "cat /dev/stdin",
+        cwd,
+      );
+      expect(result).toHaveLength(0);
     });
 
     test("does not flag /dev/stdout", async () => {
-      if (process.platform === "win32") {
-        const result = await extractExternalPathsFromBashCommand(
-          "cat /dev/stdout",
-          cwd,
-        );
-        expect(result).toContain(toPlatformPath("/dev/stdout"));
-      } else {
-        const result = await extractExternalPathsFromBashCommand(
-          "cat /dev/stdout",
-          cwd,
-        );
-        expect(result).toHaveLength(0);
-      }
+      const result = await extractExternalPathsFromBashCommand(
+        "cat /dev/stdout",
+        cwd,
+      );
+      expect(result).toHaveLength(0);
     });
 
     test("does not flag /dev/stderr", async () => {
-      if (process.platform === "win32") {
-        const result = await extractExternalPathsFromBashCommand(
-          "cat /dev/stderr",
-          cwd,
-        );
-        expect(result).toContain(toPlatformPath("/dev/stderr"));
-      } else {
-        const result = await extractExternalPathsFromBashCommand(
-          "cat /dev/stderr",
-          cwd,
-        );
-        expect(result).toHaveLength(0);
-      }
+      const result = await extractExternalPathsFromBashCommand(
+        "cat /dev/stderr",
+        cwd,
+      );
+      expect(result).toHaveLength(0);
     });
 
     test("still flags a real external path alongside /dev/null", async () => {
@@ -852,12 +811,7 @@ describe("extractExternalPathsFromBashCommand", () => {
         'grep -n "glob" src/foo.ts 2>/dev/null | grep -v "//.*glob\\|globalConfig" | head -30',
         cwd,
       );
-      if (process.platform === "win32") {
-        // On Windows, /dev/null normalizes to C:\dev\null which is not in SAFE_SYSTEM_PATHS.
-        expect(result).toContain(toPlatformPath("/dev/null"));
-      } else {
-        expect(result).toHaveLength(0);
-      }
+      expect(result).toHaveLength(0);
     });
 
     test("grep -v with //.*pattern without backslash-pipe is not flagged", async () => {

@@ -10,7 +10,7 @@ vi.mock("../src/tool-input-preview.js", () => ({
         ? input.file_path
         : null,
   countTextLines: (value: string) => value.split(/\r\n|\r|\n/).length,
-  formatCount: (value: number, singular: string) => `${value} ${singular}`,
+  formatCount: (value: number, singular: string, plural: string) => `${value} ${value === 1 ? singular : plural}`,
 }));
 
 import {
@@ -289,7 +289,7 @@ describe("formatAskPrompt", () => {
       { path: "/src/foo.ts", edits: [{ oldText: "a\nb", newText: "c\nd" }] },
     );
     expect(result).toBe(
-      "edit(/src/foo.ts (1 replacement: edit #1 replaces 2 line with 2 line))",
+      "edit(/src/foo.ts (1 replacement: edit #1 replaces 2 lines with 2 lines))",
     );
   });
 
@@ -305,7 +305,7 @@ describe("formatAskPrompt", () => {
       },
     );
     expect(result).toBe(
-      "edit(/src/foo.ts (2 replacement: edit #1 replaces 1 line with 1 line, plus 1 additional edit))",
+      "edit(/src/foo.ts (2 replacements: edit #1 replaces 1 line with 1 line, plus 1 additional edit))",
     );
   });
 

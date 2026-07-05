@@ -234,37 +234,19 @@ describe("isPathOutsideWorkingDirectory", () => {
   });
 
   test("returns false for /dev/null regardless of cwd", () => {
-    if (process.platform === "win32") {
-      // Windows normalizes `/dev/null` to `C:\dev\null`, which is not in SAFE_SYSTEM_PATHS.
-      // This test documents the current platform-specific behavior.
-      expect(isPathOutsideWorkingDirectory("/dev/null", cwd)).toBe(true);
-    } else {
-      expect(isPathOutsideWorkingDirectory("/dev/null", cwd)).toBe(false);
-    }
+    expect(isPathOutsideWorkingDirectory("/dev/null", cwd)).toBe(false);
   });
 
   test("returns false for /dev/stdin regardless of cwd", () => {
-    if (process.platform === "win32") {
-      expect(isPathOutsideWorkingDirectory("/dev/stdin", cwd)).toBe(true);
-    } else {
-      expect(isPathOutsideWorkingDirectory("/dev/stdin", cwd)).toBe(false);
-    }
+    expect(isPathOutsideWorkingDirectory("/dev/stdin", cwd)).toBe(false);
   });
 
   test("returns false for /dev/stdout regardless of cwd", () => {
-    if (process.platform === "win32") {
-      expect(isPathOutsideWorkingDirectory("/dev/stdout", cwd)).toBe(true);
-    } else {
-      expect(isPathOutsideWorkingDirectory("/dev/stdout", cwd)).toBe(false);
-    }
+    expect(isPathOutsideWorkingDirectory("/dev/stdout", cwd)).toBe(false);
   });
 
   test("returns false for /dev/stderr regardless of cwd", () => {
-    if (process.platform === "win32") {
-      expect(isPathOutsideWorkingDirectory("/dev/stderr", cwd)).toBe(true);
-    } else {
-      expect(isPathOutsideWorkingDirectory("/dev/stderr", cwd)).toBe(false);
-    }
+    expect(isPathOutsideWorkingDirectory("/dev/stderr", cwd)).toBe(false);
   });
 
   test("returns true for /dev/null/subdir (not a safe path)", () => {

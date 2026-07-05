@@ -3,7 +3,10 @@ export function formatExternalDirectoryHardStopHint(): string {
 }
 
 /**
- * @deprecated This prompt now shows the external path only. `toolName` is no longer used.
+ * Formats the ask prompt for external directory access.
+ *
+ * The `toolName` parameter is retained for backward compatibility but is no
+ * longer included in the prompt text — only the external path is shown.
  */
 export function formatExternalDirectoryAskPrompt(
   _toolName: string,

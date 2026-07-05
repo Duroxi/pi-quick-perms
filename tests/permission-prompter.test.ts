@@ -308,6 +308,60 @@ describe("PermissionPrompter", () => {
 
       expect(mockConfirmPermission).toHaveBeenCalled();
     });
+
+    it("yoloMode takes precedence over allowEditsMode for non-write/edit tools", async () => {
+      const deps = makeDeps({
+        getConfig: () => ({ ...DEFAULT_EXTENSION_CONFIG, yoloMode: true, allowEditsMode: true }),
+      });
+      const prompter = new PermissionPrompter(deps);
+
+      const decision = await prompter.prompt(makeCtx(false), makeDetails({
+        surface: "bash",
+        toolName: "bash",
+      }));
+
+      expect(decision).toEqual({
+        approved: true,
+        state: "approved",
+        autoApproved: true,
+      });
+      expect(mockConfirmPermission).not.toHaveBeenCalled();
+    });
+
+    it("yoloMode takes precedence over allowEditsMode for write/edit tools", async () => {
+      const deps = makeDeps({
+        getConfig: () => ({ ...DEFAULT_EXTENSION_CONFIG, yoloMode: true, allowEditsMode: true }),
+      });
+      const prompter = new PermissionPrompter(deps);
+
+      const decision = await prompter.prompt(makeCtx(false), makeDetails({
+        surface: "write",
+        toolName: "write",
+      }));
+
+      expect(decision).toEqual({
+        approved: true,
+        state: "approved",
+        autoApproved: true,
+      });
+      expect(mockConfirmPermission).not.toHaveBeenCalled();
+    });
+
+    it("does not auto-approve when allowEditsMode is on but surface is not write/edit (deny-state boundary)", async () => {
+      const deps = makeDeps({
+        getConfig: () => ({ ...DEFAULT_EXTENSION_CONFIG, allowEditsMode: true }),
+      });
+      const prompter = new PermissionPrompter(deps);
+      mockConfirmPermission.mockResolvedValue({ approved: false, state: "denied" });
+
+      // Non-write/edit surface falls through to confirmPermission even with allowEditsMode.
+      await prompter.prompt(makeCtx(true), makeDetails({
+        surface: "read",
+        toolName: "read",
+      }));
+
+      expect(mockConfirmPermission).toHaveBeenCalled();
+    });
   });
 
   // ── Non-yolo path ────────────────────────────────────────────────────────
