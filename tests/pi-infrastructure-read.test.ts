@@ -17,6 +17,18 @@ vi.mock("node:child_process", () => ({
 import { discoverGlobalNodeModulesRoot } from "../src/node-modules-discovery";
 import { isPiInfrastructureRead } from "../src/path-utils";
 
+function toWindowsFileUrl(unixUrl: string): string {
+  if (process.platform !== "win32") return unixUrl;
+  // file:///opt/... → file:///C:/opt/...
+  const pathPart = unixUrl.replace("file:///", "");
+  return `file:///C:/${pathPart}`;
+}
+
+function toWindowsExpectedPath(unixPath: string): string {
+  if (process.platform !== "win32") return unixPath;
+  return unixPath.replace(/^\//, "C:\\").replace(/\//g, "\\");
+}
+
 // ── discoverGlobalNodeModulesRoot ──────────────────────────────────────────
 
 describe("discoverGlobalNodeModulesRoot", () => {
@@ -28,26 +40,29 @@ describe("discoverGlobalNodeModulesRoot", () => {
   });
 
   test("returns the node_modules dir when the file is inside one", () => {
-    const url =
-      "file:///opt/homebrew/lib/node_modules/pi-quick-perms/dist/external-directory.js";
+    const url = toWindowsFileUrl(
+      "file:///opt/homebrew/lib/node_modules/pi-quick-perms/dist/external-directory.js",
+    );
     expect(discoverGlobalNodeModulesRoot(url)).toBe(
-      "/opt/homebrew/lib/node_modules",
+      toWindowsExpectedPath("/opt/homebrew/lib/node_modules"),
     );
   });
 
   test("returns node_modules for a deeply nested file", () => {
-    const url =
-      "file:///home/user/.nvm/versions/node/v20/lib/node_modules/pi-quick-perms/src/external-directory.js";
+    const url = toWindowsFileUrl(
+      "file:///home/user/.nvm/versions/node/v20/lib/node_modules/pi-quick-perms/src/external-directory.js",
+    );
     expect(discoverGlobalNodeModulesRoot(url)).toBe(
-      "/home/user/.nvm/versions/node/v20/lib/node_modules",
+      toWindowsExpectedPath("/home/user/.nvm/versions/node/v20/lib/node_modules"),
     );
   });
 
   test("returns node_modules for a bun global install path", () => {
-    const url =
-      "file:///home/user/.bun/install/global/node_modules/pi-quick-perms/dist/external-directory.js";
+    const url = toWindowsFileUrl(
+      "file:///home/user/.bun/install/global/node_modules/pi-quick-perms/dist/external-directory.js",
+    );
     expect(discoverGlobalNodeModulesRoot(url)).toBe(
-      "/home/user/.bun/install/global/node_modules",
+      toWindowsExpectedPath("/home/user/.bun/install/global/node_modules"),
     );
   });
 
@@ -56,21 +71,23 @@ describe("discoverGlobalNodeModulesRoot", () => {
     // which is the innermost one when the file is inside a nested install.
     // In practice this never happens for a real global install — the extension
     // is always directly at <global_root>/node_modules/pi-quick-perms/…
-    const url =
-      "file:///opt/lib/node_modules/some-pkg/node_modules/pi-quick-perms/dist/index.js";
+    const url = toWindowsFileUrl(
+      "file:///opt/lib/node_modules/some-pkg/node_modules/pi-quick-perms/dist/index.js",
+    );
     expect(discoverGlobalNodeModulesRoot(url)).toBe(
-      "/opt/lib/node_modules/some-pkg/node_modules",
+      toWindowsExpectedPath("/opt/lib/node_modules/some-pkg/node_modules"),
     );
   });
 
   test("returns null when the file is not inside any node_modules directory", () => {
-    const url =
-      "file:///home/user/development/pi-quick-perms/dist/external-directory.js";
+    const url = toWindowsFileUrl(
+      "file:///home/user/development/pi-quick-perms/dist/external-directory.js",
+    );
     expect(discoverGlobalNodeModulesRoot(url)).toBeNull();
   });
 
   test("returns null for a root-level file", () => {
-    const url = "file:///external-directory.js";
+    const url = toWindowsFileUrl("file:///external-directory.js");
     expect(discoverGlobalNodeModulesRoot(url)).toBeNull();
   });
 
@@ -87,24 +104,35 @@ describe("discoverGlobalNodeModulesRoot", () => {
   });
 
   test("the discovered path includes the pi-quick-perms package directory", () => {
-    const url =
-      "file:///opt/homebrew/lib/node_modules/pi-quick-perms/dist/external-directory.js";
+    const url = toWindowsFileUrl(
+      "file:///opt/homebrew/lib/node_modules/pi-quick-perms/dist/external-directory.js",
+    );
     const root = discoverGlobalNodeModulesRoot(url);
     expect(root).not.toBeNull();
     expect(join(root!, "pi-quick-perms")).toBe(
-      "/opt/homebrew/lib/node_modules/pi-quick-perms",
+      toWindowsExpectedPath("/opt/homebrew/lib/node_modules/pi-quick-perms"),
     );
   });
 });
 
 // ── isPiInfrastructureRead ─────────────────────────────────────────────────
 
-const INFRA_DIRS = [
-  "/home/user/.pi/agent",
-  "/home/user/.pi/agent/git",
-  "/opt/homebrew/lib/node_modules",
-];
-const CWD = "/home/user/project";
+const INFRA_DIRS =
+  process.platform === "win32"
+    ? [
+        "c:\\home\\user\\.pi\\agent",
+        "c:\\home\\user\\.pi\\agent\\git",
+        "c:\\opt\\homebrew\\lib\\node_modules",
+      ]
+    : [
+        "/home/user/.pi/agent",
+        "/home/user/.pi/agent/git",
+        "/opt/homebrew/lib/node_modules",
+      ];
+const CWD =
+  process.platform === "win32"
+    ? "c:\\home\\user\\project"
+    : "/home/user/project";
 
 describe("isPiInfrastructureRead", () => {
   // ── read tools allowed for infra paths ──────────────────────────────────
@@ -113,7 +141,9 @@ describe("isPiInfrastructureRead", () => {
     expect(
       isPiInfrastructureRead(
         "read",
-        "/home/user/.pi/agent/extensions/pi-quick-perms/config.json",
+        process.platform === "win32"
+          ? "c:\\home\\user\\.pi\\agent\\extensions\\pi-quick-perms\\config.json"
+          : "/home/user/.pi/agent/extensions/pi-quick-perms/config.json",
         INFRA_DIRS,
         CWD,
       ),
@@ -124,7 +154,9 @@ describe("isPiInfrastructureRead", () => {
     expect(
       isPiInfrastructureRead(
         "find",
-        "/opt/homebrew/lib/node_modules/pi-ask-user/skills",
+        process.platform === "win32"
+          ? "c:\\opt\\homebrew\\lib\\node_modules\\pi-ask-user\\skills"
+          : "/opt/homebrew/lib/node_modules/pi-ask-user/skills",
         INFRA_DIRS,
         CWD,
       ),
@@ -135,7 +167,9 @@ describe("isPiInfrastructureRead", () => {
     expect(
       isPiInfrastructureRead(
         "grep",
-        "/home/user/.pi/agent/git/some-package/README.md",
+        process.platform === "win32"
+          ? "c:\\home\\user\\.pi\\agent\\git\\some-package\\README.md"
+          : "/home/user/.pi/agent/git/some-package/README.md",
         INFRA_DIRS,
         CWD,
       ),
@@ -146,7 +180,9 @@ describe("isPiInfrastructureRead", () => {
     expect(
       isPiInfrastructureRead(
         "ls",
-        "/opt/homebrew/lib/node_modules/pi-quick-perms",
+        process.platform === "win32"
+          ? "c:\\opt\\homebrew\\lib\\node_modules\\pi-quick-perms"
+          : "/opt/homebrew/lib/node_modules/pi-quick-perms",
         INFRA_DIRS,
         CWD,
       ),
@@ -159,7 +195,9 @@ describe("isPiInfrastructureRead", () => {
     expect(
       isPiInfrastructureRead(
         "write",
-        "/home/user/.pi/agent/extensions/pi-quick-perms/config.json",
+        process.platform === "win32"
+          ? "c:\\home\\user\\.pi\\agent\\extensions\\pi-quick-perms\\config.json"
+          : "/home/user/.pi/agent/extensions/pi-quick-perms/config.json",
         INFRA_DIRS,
         CWD,
       ),
@@ -170,7 +208,9 @@ describe("isPiInfrastructureRead", () => {
     expect(
       isPiInfrastructureRead(
         "edit",
-        "/opt/homebrew/lib/node_modules/pi-ask-user/skills/ask-user/SKILL.md",
+        process.platform === "win32"
+          ? "c:\\opt\\homebrew\\lib\\node_modules\\pi-ask-user\\skills\\ask-user\\SKILL.md"
+          : "/opt/homebrew/lib/node_modules/pi-ask-user/skills/ask-user/SKILL.md",
         INFRA_DIRS,
         CWD,
       ),
@@ -181,7 +221,9 @@ describe("isPiInfrastructureRead", () => {
     expect(
       isPiInfrastructureRead(
         "bash",
-        "/opt/homebrew/lib/node_modules/pi-ask-user/SKILL.md",
+        process.platform === "win32"
+          ? "c:\\opt\\homebrew\\lib\\node_modules\\pi-ask-user\\SKILL.md"
+          : "/opt/homebrew/lib/node_modules/pi-ask-user/SKILL.md",
         INFRA_DIRS,
         CWD,
       ),
@@ -191,9 +233,14 @@ describe("isPiInfrastructureRead", () => {
   // ── non-infra paths not allowed ──────────────────────────────────────────
 
   test("does not allow 'read' for a path outside all infra dirs", () => {
-    expect(isPiInfrastructureRead("read", "/etc/passwd", INFRA_DIRS, CWD)).toBe(
-      false,
-    );
+    expect(
+      isPiInfrastructureRead(
+        "read",
+        process.platform === "win32" ? "c:\\etc\\passwd" : "/etc/passwd",
+        INFRA_DIRS,
+        CWD,
+      ),
+    ).toBe(false);
   });
 
   test("does not allow 'read' for a path only partially matching an infra dir prefix", () => {
@@ -201,7 +248,9 @@ describe("isPiInfrastructureRead", () => {
     expect(
       isPiInfrastructureRead(
         "read",
-        "/home/user/.pi/agent-other/config.json",
+        process.platform === "win32"
+          ? "c:\\home\\user\\.pi\\agent-other\\config.json"
+          : "/home/user/.pi/agent-other/config.json",
         INFRA_DIRS,
         CWD,
       ),
@@ -211,32 +260,34 @@ describe("isPiInfrastructureRead", () => {
   // ── project-local Pi packages (.pi/npm, .pi/git) ─────────────────────────
 
   test("allows 'read' for a path inside project-local .pi/npm/", () => {
-    expect(
-      isPiInfrastructureRead(
-        "read",
-        `${CWD}/.pi/npm/node_modules/some-skill/SKILL.md`,
-        INFRA_DIRS,
-        CWD,
-      ),
-    ).toBe(true);
+    const piNpmPath =
+      process.platform === "win32"
+        ? join(CWD, ".pi", "npm", "node_modules", "some-skill", "SKILL.md")
+        : `${CWD}/.pi/npm/node_modules/some-skill/SKILL.md`;
+    expect(isPiInfrastructureRead("read", piNpmPath, INFRA_DIRS, CWD)).toBe(
+      true,
+    );
   });
 
   test("allows 'read' for a path inside project-local .pi/git/", () => {
-    expect(
-      isPiInfrastructureRead(
-        "read",
-        `${CWD}/.pi/git/github.com/org/skill-repo/SKILL.md`,
-        INFRA_DIRS,
-        CWD,
-      ),
-    ).toBe(true);
+    const piGitPath =
+      process.platform === "win32"
+        ? join(CWD, ".pi", "git", "github.com", "org", "skill-repo", "SKILL.md")
+        : `${CWD}/.pi/git/github.com/org/skill-repo/SKILL.md`;
+    expect(isPiInfrastructureRead("read", piGitPath, INFRA_DIRS, CWD)).toBe(
+      true,
+    );
   });
 
   test("blocks 'write' for a path inside project-local .pi/npm/", () => {
+    const piNpmPath =
+      process.platform === "win32"
+        ? join(CWD, ".pi", "npm", "node_modules", "some-skill", "SKILL.md")
+        : `${CWD}/.pi/npm/node_modules/some-skill/SKILL.md`;
     expect(
       isPiInfrastructureRead(
         "write",
-        `${CWD}/.pi/npm/node_modules/some-skill/SKILL.md`,
+        piNpmPath,
         INFRA_DIRS,
         CWD,
       ),
@@ -246,15 +297,26 @@ describe("isPiInfrastructureRead", () => {
   // ── empty / edge cases ───────────────────────────────────────────────────
 
   test("returns false when infrastructureDirs is empty and path is not project-local", () => {
-    expect(isPiInfrastructureRead("read", "/etc/passwd", [], CWD)).toBe(false);
+    expect(
+      isPiInfrastructureRead(
+        "read",
+        process.platform === "win32" ? "c:\\etc\\passwd" : "/etc/passwd",
+        [],
+        CWD,
+      ),
+    ).toBe(false);
   });
 
   test("returns false when infrastructureDirs is empty but path IS project-local .pi/npm", () => {
     // Project-local paths are checked separately from the dirs array.
+    const piNpmPath =
+      process.platform === "win32"
+        ? join(CWD, ".pi", "npm", "node_modules", "x", "SKILL.md")
+        : `${CWD}/.pi/npm/node_modules/x/SKILL.md`;
     expect(
       isPiInfrastructureRead(
         "read",
-        `${CWD}/.pi/npm/node_modules/x/SKILL.md`,
+        piNpmPath,
         [],
         CWD,
       ),

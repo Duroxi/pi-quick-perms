@@ -3,6 +3,7 @@
  * gate resolution and fast-path site.
  */
 import type { ExtensionContext } from "@earendil-works/pi-coding-agent";
+import { join } from "node:path";
 import { describe, expect, it, vi } from "vitest";
 
 import { PermissionGateHandler } from "../../src/handlers/permission-gate-handler";
@@ -303,7 +304,8 @@ describe("handleToolCall decision events — confirmation_unavailable", () => {
 
 describe("handleToolCall decision events — infrastructure_auto_allowed", () => {
   it("emits allow with infrastructure_auto_allowed for Pi infra reads", async () => {
-    const infraDir = "/test/agent";
+    const infraDir =
+      process.platform === "win32" ? "c:\\test\\agent" : "/test/agent";
     const { handler, events } = makeHandler({
       session: {
         checkPermission: vi.fn().mockReturnValue(makeCheckResult("allow")),
@@ -312,7 +314,7 @@ describe("handleToolCall decision events — infrastructure_auto_allowed", () =>
     });
 
     const event = makeToolCallEvent("read", {
-      input: { path: `${infraDir}/some-file.json` },
+      input: { path: join(infraDir, "some-file.json") },
     });
     await handler.handleToolCall(event, makeCtx());
 

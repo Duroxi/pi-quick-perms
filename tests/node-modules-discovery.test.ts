@@ -28,21 +28,33 @@ describe("discoverGlobalNodeModulesRoot", () => {
 
   test("returns node_modules root when URL is inside a node_modules tree", () => {
     const fakeUrl =
-      "file:///opt/homebrew/lib/node_modules/pi-quick-perms/dist/external-directory.js";
+      process.platform === "win32"
+        ? "file:///C:/global/node_modules/pi-quick-perms/dist/external-directory.js"
+        : "file:///opt/homebrew/lib/node_modules/pi-quick-perms/dist/external-directory.js";
+    const expected =
+      process.platform === "win32"
+        ? "C:\\global\\node_modules"
+        : "/opt/homebrew/lib/node_modules";
     const result = discoverGlobalNodeModulesRoot(fakeUrl);
-    expect(result).toBe("/opt/homebrew/lib/node_modules");
+    expect(result).toBe(expected);
     expect(mockSpawnSync).not.toHaveBeenCalled();
   });
 
   test("calls npm root -g as fallback when walk-up finds no node_modules ancestor", () => {
-    const npmRootPath = "/opt/homebrew/lib/node_modules";
+    const npmRootPath =
+      process.platform === "win32"
+        ? "C:\\global\\node_modules"
+        : "/opt/homebrew/lib/node_modules";
     mockSpawnSync.mockReturnValue({
       status: 0,
       stdout: `${npmRootPath}\n`,
     });
     mockExistsSync.mockReturnValue(true);
 
-    const fakeUrl = "file:///Users/dev/my-project/src/external-directory.ts";
+    const fakeUrl =
+      process.platform === "win32"
+        ? "file:///C:/Users/dev/my-project/src/external-directory.ts"
+        : "file:///Users/dev/my-project/src/external-directory.ts";
     const result = discoverGlobalNodeModulesRoot(fakeUrl);
 
     expect(mockSpawnSync).toHaveBeenCalledWith(
@@ -56,7 +68,10 @@ describe("discoverGlobalNodeModulesRoot", () => {
   test("returns null when walk-up fails and npm root -g returns non-zero exit", () => {
     mockSpawnSync.mockReturnValue({ status: 1, stdout: "" });
 
-    const fakeUrl = "file:///Users/dev/my-project/src/external-directory.ts";
+    const fakeUrl =
+      process.platform === "win32"
+        ? "file:///C:/Users/dev/my-project/src/external-directory.ts"
+        : "file:///Users/dev/my-project/src/external-directory.ts";
     const result = discoverGlobalNodeModulesRoot(fakeUrl);
 
     expect(result).toBeNull();
@@ -67,7 +82,10 @@ describe("discoverGlobalNodeModulesRoot", () => {
       throw new Error("ENOENT");
     });
 
-    const fakeUrl = "file:///Users/dev/my-project/src/external-directory.ts";
+    const fakeUrl =
+      process.platform === "win32"
+        ? "file:///C:/Users/dev/my-project/src/external-directory.ts"
+        : "file:///Users/dev/my-project/src/external-directory.ts";
     const result = discoverGlobalNodeModulesRoot(fakeUrl);
 
     expect(result).toBeNull();
@@ -76,11 +94,17 @@ describe("discoverGlobalNodeModulesRoot", () => {
   test("returns null when walk-up fails and npm root -g returns non-existent path", () => {
     mockSpawnSync.mockReturnValue({
       status: 0,
-      stdout: "/some/nonexistent/node_modules\n",
+      stdout:
+        process.platform === "win32"
+          ? "C:\\some\\nonexistent\\node_modules\n"
+          : "/some/nonexistent/node_modules\n",
     });
     mockExistsSync.mockReturnValue(false);
 
-    const fakeUrl = "file:///Users/dev/my-project/src/external-directory.ts";
+    const fakeUrl =
+      process.platform === "win32"
+        ? "file:///C:/Users/dev/my-project/src/external-directory.ts"
+        : "file:///Users/dev/my-project/src/external-directory.ts";
     const result = discoverGlobalNodeModulesRoot(fakeUrl);
 
     expect(result).toBeNull();
@@ -89,7 +113,10 @@ describe("discoverGlobalNodeModulesRoot", () => {
   test("returns null when walk-up fails and npm root -g returns empty stdout", () => {
     mockSpawnSync.mockReturnValue({ status: 0, stdout: "   " });
 
-    const fakeUrl = "file:///Users/dev/my-project/src/external-directory.ts";
+    const fakeUrl =
+      process.platform === "win32"
+        ? "file:///C:/Users/dev/my-project/src/external-directory.ts"
+        : "file:///Users/dev/my-project/src/external-directory.ts";
     const result = discoverGlobalNodeModulesRoot(fakeUrl);
 
     expect(result).toBeNull();

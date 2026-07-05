@@ -12,7 +12,15 @@ afterEach(() => {
 
 // ── Helpers ────────────────────────────────────────────────────────────────
 
-const CWD = "/projects/my-app";
+const CWD =
+  process.platform === "win32"
+    ? "c:\\projects\\my-app"
+    : "/projects/my-app";
+
+function toPlatformPath(unixPath: string): string {
+  if (process.platform !== "win32") return unixPath;
+  return unixPath.replace(/^\//, "c:\\").replace(/\//g, "\\").toLowerCase();
+}
 
 function makeManager(
   defaultState: "allow" | "deny" | "ask" = "allow",
@@ -144,8 +152,12 @@ describe("resolveSkillPromptEntries", () => {
     const input = availableSkillsSection("librarian");
     const manager = makeManager("allow");
     const result = resolveSkillPromptEntries(input, manager, null, CWD);
-    expect(result.entries[0].normalizedLocation).toBe(location);
-    expect(result.entries[0].normalizedBaseDir).toBe("/skills/librarian");
+    expect(result.entries[0].normalizedLocation).toBe(
+      toPlatformPath(location),
+    );
+    expect(result.entries[0].normalizedBaseDir).toBe(
+      toPlatformPath("/skills/librarian"),
+    );
   });
 
   test("handles multi-section prompt: processes each section independently", () => {
@@ -168,16 +180,16 @@ describe("findSkillPathMatch", () => {
       description: "desc",
       location: "/skills/librarian/SKILL.md",
       state: "allow" as const,
-      normalizedLocation: "/skills/librarian/SKILL.md",
-      normalizedBaseDir: "/skills/librarian",
+      normalizedLocation: toPlatformPath("/skills/librarian/SKILL.md"),
+      normalizedBaseDir: toPlatformPath("/skills/librarian"),
     },
     {
       name: "ask-user",
       description: "desc",
       location: "/skills/ask-user/SKILL.md",
       state: "allow" as const,
-      normalizedLocation: "/skills/ask-user/SKILL.md",
-      normalizedBaseDir: "/skills/ask-user",
+      normalizedLocation: toPlatformPath("/skills/ask-user/SKILL.md"),
+      normalizedBaseDir: toPlatformPath("/skills/ask-user"),
     },
   ];
 
@@ -190,27 +202,33 @@ describe("findSkillPathMatch", () => {
   });
 
   test("matches exact location path", () => {
-    const match = findSkillPathMatch("/skills/librarian/SKILL.md", entries);
+    const match = findSkillPathMatch(
+      toPlatformPath("/skills/librarian/SKILL.md"),
+      entries,
+    );
     expect(match?.name).toBe("librarian");
   });
 
   test("matches path within skill base directory", () => {
     const match = findSkillPathMatch(
-      "/skills/librarian/extra/helper.md",
+      toPlatformPath("/skills/librarian/extra/helper.md"),
       entries,
     );
     expect(match?.name).toBe("librarian");
   });
 
   test("returns null for path not within any skill directory", () => {
-    const match = findSkillPathMatch("/other/path/file.md", entries);
+    const match = findSkillPathMatch(
+      toPlatformPath("/other/path/file.md"),
+      entries,
+    );
     expect(match).toBeNull();
   });
 
   test("returns null for sibling path that shares a prefix", () => {
     // "/skills/librarian-extra" should not match "/skills/librarian"
     const match = findSkillPathMatch(
-      "/skills/librarian-extra/SKILL.md",
+      toPlatformPath("/skills/librarian-extra/SKILL.md"),
       entries,
     );
     expect(match).toBeNull();
@@ -223,20 +241,20 @@ describe("findSkillPathMatch", () => {
         description: "desc",
         location: "/skills/parent/SKILL.md",
         state: "allow" as const,
-        normalizedLocation: "/skills/parent/SKILL.md",
-        normalizedBaseDir: "/skills/parent",
+        normalizedLocation: toPlatformPath("/skills/parent/SKILL.md"),
+        normalizedBaseDir: toPlatformPath("/skills/parent"),
       },
       {
         name: "child",
         description: "desc",
         location: "/skills/parent/child/SKILL.md",
         state: "allow" as const,
-        normalizedLocation: "/skills/parent/child/SKILL.md",
-        normalizedBaseDir: "/skills/parent/child",
+        normalizedLocation: toPlatformPath("/skills/parent/child/SKILL.md"),
+        normalizedBaseDir: toPlatformPath("/skills/parent/child"),
       },
     ];
     const match = findSkillPathMatch(
-      "/skills/parent/child/helper.md",
+      toPlatformPath("/skills/parent/child/helper.md"),
       nestedEntries,
     );
     expect(match?.name).toBe("child");

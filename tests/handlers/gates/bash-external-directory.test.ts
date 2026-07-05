@@ -173,7 +173,12 @@ describe("describeBashExternalDirectoryGate", () => {
     const checkPermission = vi
       .fn()
       .mockImplementation((surface: string, input: Record<string, unknown>) => {
-        if (input.path === "/outside/a.ts") {
+        const pathValue = typeof input.path === "string" ? input.path : "";
+        const windowsA =
+          process.platform === "win32"
+            ? "c:\\outside\\a.ts"
+            : "/outside/a.ts";
+        if (pathValue === windowsA) {
           return makeCheckResult("allow", { source: "session" });
         }
         return makeCheckResult("ask");

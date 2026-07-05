@@ -1,10 +1,16 @@
 import type { ExtensionContext } from "@earendil-works/pi-coding-agent";
+import { normalize } from "node:path";
 import { afterEach, describe, expect, test, vi } from "vitest";
 import { SUBAGENT_ENV_HINT_KEYS } from "../src/permission-forwarding";
 import {
   isSubagentExecutionContext,
   normalizeFilesystemPath,
 } from "../src/subagent-context";
+
+function toPlatformPath(unixPath: string): string {
+  if (process.platform !== "win32") return unixPath;
+  return normalize(unixPath).toLowerCase();
+}
 
 afterEach(() => {
   vi.unstubAllEnvs();
@@ -22,19 +28,19 @@ function makeCtx(sessionDir: string | null): ExtensionContext {
 describe("normalizeFilesystemPath", () => {
   test("normalizes a simple absolute path", () => {
     expect(normalizeFilesystemPath("/projects/my-app")).toBe(
-      "/projects/my-app",
+      toPlatformPath("/projects/my-app"),
     );
   });
 
   test("collapses redundant separators", () => {
     expect(normalizeFilesystemPath("/projects//my-app")).toBe(
-      "/projects/my-app",
+      toPlatformPath("/projects/my-app"),
     );
   });
 
   test("resolves . and .. segments", () => {
     expect(normalizeFilesystemPath("/projects/my-app/../other")).toBe(
-      "/projects/other",
+      toPlatformPath("/projects/other"),
     );
   });
 });

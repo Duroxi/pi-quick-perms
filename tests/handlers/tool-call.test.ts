@@ -203,8 +203,14 @@ describe("handleToolCall — skill-read gate", () => {
       description: "Research skills",
       location: "/skills/librarian/SKILL.md",
       state: "deny" as const,
-      normalizedLocation: "/skills/librarian/SKILL.md",
-      normalizedBaseDir: "/skills/librarian",
+      normalizedLocation:
+        process.platform === "win32"
+          ? "c:\\skills\\librarian\\skill.md"
+          : "/skills/librarian/SKILL.md",
+      normalizedBaseDir:
+        process.platform === "win32"
+          ? "c:\\skills\\librarian"
+          : "/skills/librarian",
     };
     const { handler } = makeHandler({
       session: {

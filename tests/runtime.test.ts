@@ -1,6 +1,18 @@
 import { join } from "node:path";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+/**
+ * Convert a Unix-style path to the current platform's normalized form.
+ *
+ * Mirrors `computeExtensionPaths` which calls `join(agentDir, child)`.
+ * Using a single-argument `join()` preserves the root-relative semantics
+ * (e.g. `join('/test/agent/sessions')` → `\test\agent\sessions` on Windows).
+ */
+function toPlatformPath(unixPath: string): string {
+  const result = join(unixPath);
+  return process.platform === "win32" ? result.toLowerCase() : result;
+}
+
 // ── logger stub ────────────────────────────────────────────────────────────
 const {
   mockLoggerDebug,
@@ -109,18 +121,20 @@ describe("createExtensionRuntime", () => {
 
   it("derives sessionsDir from agentDir", () => {
     const runtime = createExtensionRuntime({ agentDir: "/test/agent" });
-    expect(runtime.sessionsDir).toBe("/test/agent/sessions");
+    expect(runtime.sessionsDir).toBe(toPlatformPath("/test/agent/sessions"));
   });
 
   it("derives subagentSessionsDir from agentDir", () => {
     const runtime = createExtensionRuntime({ agentDir: "/test/agent" });
-    expect(runtime.subagentSessionsDir).toBe("/test/agent/subagent-sessions");
+    expect(runtime.subagentSessionsDir).toBe(
+      toPlatformPath("/test/agent/subagent-sessions"),
+    );
   });
 
   it("derives forwardingDir as sessions/permission-forwarding", () => {
     const runtime = createExtensionRuntime({ agentDir: "/test/agent" });
     expect(runtime.forwardingDir).toBe(
-      "/test/agent/sessions/permission-forwarding",
+      toPlatformPath("/test/agent/sessions/permission-forwarding"),
     );
   });
 
@@ -138,7 +152,9 @@ describe("createExtensionRuntime", () => {
 
   it("includes agentDir/git in piInfrastructureDirs", () => {
     const runtime = createExtensionRuntime({ agentDir: "/test/agent" });
-    expect(runtime.piInfrastructureDirs).toContain("/test/agent/git");
+    expect(runtime.piInfrastructureDirs).toContain(
+      toPlatformPath("/test/agent/git"),
+    );
   });
 
   it("includes discovered global node_modules root in piInfrastructureDirs", () => {
@@ -161,7 +177,7 @@ describe("createExtensionRuntime", () => {
     // Only agentDir and agentDir/git should be present.
     expect(runtime.piInfrastructureDirs).toHaveLength(2);
     expect(runtime.piInfrastructureDirs).toContain("/test/agent");
-    expect(runtime.piInfrastructureDirs).toContain("/test/agent/git");
+    expect(runtime.piInfrastructureDirs).toContain(toPlatformPath("/test/agent/git"));
   });
 
   // ── Default mutable state ────────────────────────────────────────────────

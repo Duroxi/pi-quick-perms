@@ -11,6 +11,11 @@ import {
 import { describeExternalDirectoryGate } from "../../../src/handlers/gates/external-directory";
 import type { ToolCallContext } from "../../../src/handlers/gates/types";
 
+function toPlatformPath(unixPath: string): string {
+  if (process.platform !== "win32") return unixPath;
+  return unixPath.replace(/^\//, "c:\\").replace(/\//g, "\\").toLowerCase();
+}
+
 // ── helpers ───────────────────────────��────────────────────────────��───────
 
 function makeTcc(overrides: Partial<ToolCallContext> = {}): ToolCallContext {
@@ -56,9 +61,9 @@ describe("describeExternalDirectoryGate", () => {
     const result = describeExternalDirectoryGate(
       makeTcc({
         toolName: "read",
-        input: { path: "/test/agent/git/some-package/SKILL.md" },
+        input: { path: toPlatformPath("/test/agent/git/some-package/SKILL.md") },
       }),
-      ["/test/agent", "/test/agent/git"],
+      [toPlatformPath("/test/agent"), toPlatformPath("/test/agent/git")],
     );
     expect(result).not.toBeNull();
     expect(isGateBypass(result)).toBe(true);
@@ -77,9 +82,9 @@ describe("describeExternalDirectoryGate", () => {
     const result = describeExternalDirectoryGate(
       makeTcc({
         toolName: "read",
-        input: { path: "/custom/infra/SKILL.md" },
+        input: { path: toPlatformPath("/custom/infra/SKILL.md") },
       }),
-      ["/custom/infra"],
+      [toPlatformPath("/custom/infra")],
     );
     expect(isGateBypass(result)).toBe(true);
   });

@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import type { GateDescriptor } from "../../../src/handlers/gates/descriptor";
 import { describeSkillReadGate } from "../../../src/handlers/gates/skill-read";
+import { normalizePathForComparison } from "../../../src/path-utils";
 import type { ToolCallContext } from "../../../src/handlers/gates/types";
 import type { SkillPromptEntry } from "../../../src/skill-prompt-sanitizer";
 
@@ -17,13 +18,15 @@ vi.mock("@earendil-works/pi-coding-agent", async (importOriginal) => {
 function makeSkillEntry(
   overrides: Partial<SkillPromptEntry> = {},
 ): SkillPromptEntry {
+  const cwd = "/test/project";
+  const location = "/skills/librarian/SKILL.md";
   return {
     name: "librarian",
     description: "Research skills",
-    location: "/skills/librarian/SKILL.md",
+    location,
     state: "ask",
-    normalizedLocation: "/skills/librarian/SKILL.md",
-    normalizedBaseDir: "/skills/librarian",
+    normalizedLocation: normalizePathForComparison(location, cwd),
+    normalizedBaseDir: normalizePathForComparison("/skills/librarian", cwd),
     ...overrides,
   };
 }

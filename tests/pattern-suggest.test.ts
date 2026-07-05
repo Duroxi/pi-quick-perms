@@ -5,6 +5,17 @@ import {
   suggestSessionPattern,
 } from "../src/pattern-suggest";
 
+/**
+ * Convert a Unix-style glob pattern to the current platform's format.
+ *
+ * `deriveApprovalPattern` uses `node:path` which keeps the directory portion
+ * as-is but appends the platform separator before the wildcard.  On Windows
+ * that means `/tmp/*` becomes `/tmp\*`, not `\tmp\*`.
+ */
+function toPlatformPattern(unixPattern: string): string {
+  return process.platform === "win32" ? unixPattern.replace(/\/\*$/, "\\*") : unixPattern;
+}
+
 describe("suggestBashPattern", () => {
   it("returns <command> <subcommand> * using the arity table", () => {
     // git arity=2: include the subcommand in the prefix.
@@ -116,7 +127,7 @@ describe("suggestSessionPattern", () => {
       );
       expect(result).toMatchObject({
         surface: "external_directory",
-        pattern: "/tmp/*",
+        pattern: toPlatformPattern("/tmp/*"),
       });
     });
   });
@@ -126,13 +137,13 @@ describe("suggestSessionPattern", () => {
       const result = suggestSessionPattern("path", "src/.env");
       expect(result).toMatchObject({
         surface: "path",
-        pattern: "src/*",
+        pattern: toPlatformPattern("src/*"),
       });
     });
 
     it("label includes path pattern", () => {
       const result = suggestSessionPattern("path", "src/.env");
-      expect(result.label).toBe('Allow path "src/*" for this session');
+      expect(result.label).toBe('Allow path "' + toPlatformPattern("src/*") + '" for this session');
     });
   });
 
@@ -141,7 +152,7 @@ describe("suggestSessionPattern", () => {
       const result = suggestSessionPattern("read", "/outside/project/file.ts");
       expect(result).toMatchObject({
         surface: "read",
-        pattern: "/outside/project/*",
+        pattern: toPlatformPattern("/outside/project/*"),
       });
     });
 
@@ -149,7 +160,7 @@ describe("suggestSessionPattern", () => {
       const result = suggestSessionPattern("write", "src/main.ts");
       expect(result).toMatchObject({
         surface: "write",
-        pattern: "src/*",
+        pattern: toPlatformPattern("src/*"),
       });
     });
 
@@ -160,7 +171,7 @@ describe("suggestSessionPattern", () => {
 
     it("label includes the path pattern for path-bearing tools", () => {
       const result = suggestSessionPattern("read", "/tmp/data/file.txt");
-      expect(result.label).toBe('Allow read "/tmp/data/*" for this session');
+      expect(result.label).toBe('Allow read "' + toPlatformPattern("/tmp/data/*") + '" for this session');
     });
 
     it("label shows tool name when pattern is *", () => {
@@ -201,13 +212,13 @@ describe("suggestSessionPattern", () => {
         "/tmp/foo.txt",
       );
       expect(result.label).toBe(
-        'Allow access to external directory "/tmp/*" for this session',
+        'Allow access to external directory "' + toPlatformPattern("/tmp/*") + '" for this session',
       );
     });
 
     it("path-bearing tool label includes path pattern", () => {
       const result = suggestSessionPattern("edit", "src/file.ts");
-      expect(result.label).toBe('Allow edit "src/*" for this session');
+      expect(result.label).toBe('Allow edit "' + toPlatformPattern("src/*") + '" for this session');
     });
 
     it("tool label shows tool name when value is *", () => {

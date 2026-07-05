@@ -12,6 +12,17 @@ vi.mock("../src/node-modules-discovery", () => ({
 import { getGlobalLogsDir } from "../src/config-paths";
 import { computeExtensionPaths } from "../src/extension-paths";
 
+/**
+ * Convert a Unix-style path to the current platform's normalized form.
+ *
+ * Mirrors `computeExtensionPaths` which calls `join(agentDir, child)`.
+ * Using a single-argument `join()` preserves the root-relative semantics.
+ */
+function toPlatformPath(unixPath: string): string {
+  const result = join(unixPath);
+  return process.platform === "win32" ? result.toLowerCase() : result;
+}
+
 describe("computeExtensionPaths", () => {
   beforeEach(() => {
     mockDiscoverGlobalNodeModulesRoot.mockReset();
@@ -27,18 +38,20 @@ describe("computeExtensionPaths", () => {
 
   it("derives sessionsDir as agentDir/sessions", () => {
     const paths = computeExtensionPaths("/test/agent");
-    expect(paths.sessionsDir).toBe("/test/agent/sessions");
+    expect(paths.sessionsDir).toBe(toPlatformPath("/test/agent/sessions"));
   });
 
   it("derives subagentSessionsDir as agentDir/subagent-sessions", () => {
     const paths = computeExtensionPaths("/test/agent");
-    expect(paths.subagentSessionsDir).toBe("/test/agent/subagent-sessions");
+    expect(paths.subagentSessionsDir).toBe(
+      toPlatformPath("/test/agent/subagent-sessions"),
+    );
   });
 
   it("derives forwardingDir as sessionsDir/permission-forwarding", () => {
     const paths = computeExtensionPaths("/test/agent");
     expect(paths.forwardingDir).toBe(
-      join("/test/agent/sessions", "permission-forwarding"),
+      toPlatformPath("/test/agent/sessions/permission-forwarding"),
     );
   });
 
@@ -54,7 +67,9 @@ describe("computeExtensionPaths", () => {
 
   it("includes agentDir/git in piInfrastructureDirs", () => {
     const paths = computeExtensionPaths("/test/agent");
-    expect(paths.piInfrastructureDirs).toContain("/test/agent/git");
+    expect(paths.piInfrastructureDirs).toContain(
+      toPlatformPath("/test/agent/git"),
+    );
   });
 
   it("includes discovered global node_modules root in piInfrastructureDirs", () => {
@@ -67,7 +82,9 @@ describe("computeExtensionPaths", () => {
     const paths = computeExtensionPaths("/test/agent");
     expect(paths.piInfrastructureDirs).toHaveLength(2);
     expect(paths.piInfrastructureDirs).toContain("/test/agent");
-    expect(paths.piInfrastructureDirs).toContain("/test/agent/git");
+    expect(paths.piInfrastructureDirs).toContain(
+      toPlatformPath("/test/agent/git"),
+    );
   });
 
   it("all entries in piInfrastructureDirs are strings (no null)", () => {
@@ -83,7 +100,7 @@ describe("computeExtensionPaths", () => {
     const b = computeExtensionPaths("/agent/b");
     expect(a.agentDir).toBe("/agent/a");
     expect(b.agentDir).toBe("/agent/b");
-    expect(a.sessionsDir).toBe("/agent/a/sessions");
-    expect(b.sessionsDir).toBe("/agent/b/sessions");
+    expect(a.sessionsDir).toBe(toPlatformPath("/agent/a/sessions"));
+    expect(b.sessionsDir).toBe(toPlatformPath("/agent/b/sessions"));
   });
 });
